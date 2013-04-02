@@ -37,6 +37,9 @@ namespace MetroFramework.Components
         
         }
 
+        /// <summary>
+        ///     The Container owning components.
+        /// </summary>
         private readonly IContainer parentContainer;
 
         public MetroStyleManager(IContainer parentContainer)
@@ -51,6 +54,9 @@ namespace MetroFramework.Components
 
         #region ICloneable
 
+        // What's the use case here?
+        // Do we need to clone parent container, too?
+
         public object Clone()
         {
             MetroStyleManager newStyleManager = new MetroStyleManager();
@@ -63,16 +69,20 @@ namespace MetroFramework.Components
 
         #region ISupportInitialize
 
-        private bool isInitialized;
+        /// <summary>
+        ///     Defer propagating style information until all controls and components have ben added 
+        ///     and all properties have been set.
+        /// </summary>
+        private bool isInitializing;
 
         void ISupportInitialize.BeginInit()
         {
-            isInitialized = false;
+            isInitializing = true;
         }
 
         void ISupportInitialize.EndInit()
         {
-            isInitialized = true;
+            isInitializing = false;
             Refresh();
         }
 
@@ -84,6 +94,8 @@ namespace MetroFramework.Components
             get { return owner; }
             set
             {
+                // We attach to ControlAdded to propagate styles to dynamically added controls
+
                 if (owner != null) 
                 {
                     owner.ControlAdded -= ControlAdded;
@@ -95,7 +107,7 @@ namespace MetroFramework.Components
                 {
                     owner.ControlAdded += ControlAdded;
 
-                    if (isInitialized)
+                    if (!isInitializing)
                     {
                         UpdateControl(value);
                     }
@@ -113,7 +125,7 @@ namespace MetroFramework.Components
             { 
                 metroStyle = value;
 
-                if (isInitialized)
+                if (!isInitializing)
                 {
                     Refresh();
                 }
@@ -130,7 +142,7 @@ namespace MetroFramework.Components
             {
                 metroTheme = value;
 
-                if (isInitialized)
+                if (!isInitializing)
                 {
                     Refresh();
                 }
@@ -139,7 +151,7 @@ namespace MetroFramework.Components
 
         private void ControlAdded(object sender, ControlEventArgs e)
         {
-            if (isInitialized)
+            if (!isInitializing)
             {
                 UpdateControl(e.Control);
             }
@@ -157,6 +169,7 @@ namespace MetroFramework.Components
                 return;
             }
 
+            // propagate style information to components, i.e. MetroStyleExtender
             foreach (Object obj in parentContainer.Components)
             {
                 if (obj is IMetroComponent)

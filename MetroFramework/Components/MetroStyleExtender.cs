@@ -11,10 +11,20 @@ using MetroFramework.Interfaces;
 
 namespace MetroFramework.Components
 {
+    /// <summary>
+    ///     Extend legacy controls with an <c>ApplyMetroTheme</c> property.
+    /// </summary>
+    /// <remarks>
+    ///     The theme is applied to <see cref="Control.BackColor"/> and <see cref="Control.ForeColor"/> only.
+    /// </remarks>
+    [ProvideProperty("ApplyMetroTheme", typeof(Control))] // we can provide more than one property if we like
 	[ProvideProperty("ApplyMetroTheme", typeof(Control))]
     public sealed class MetroStyleExtender : Component, IExtenderProvider, IMetroComponent
 	{
-        private readonly Hashtable extendedControls = new Hashtable();
+        // see http://www.codeproject.com/Articles/4683/Getting-to-know-IExtenderProvider
+
+        // TODO: Need something more performant here if we extend > 10 controls
+        private readonly List<Control> extendedControls = new List<Control>();
 
         public MetroStyleExtender()
         {
@@ -35,14 +45,17 @@ namespace MetroFramework.Components
             Color backColor = MetroPaint.BackColor.Form(theme);
             Color foreColor = MetroPaint.ForeColor.Label.Normal(theme);
 
-            foreach (DictionaryEntry de in extendedControls)
+            foreach (Control ctrl in extendedControls)
             {
-                Control ctrl = de.Value as Control;
                 if (ctrl != null)
                 {
                     try
                     {
                         ctrl.BackColor = backColor;
+                    }
+                    catch { }
+                    try
+                    {
                         ctrl.ForeColor = foreColor;
                     }
                     catch { }
@@ -83,7 +96,7 @@ namespace MetroFramework.Components
             {
                 if (value)
                 {
-                    extendedControls.Add(control.GetHashCode(), control);
+                    extendedControls.Add(control);
                 }
             }
         }
@@ -95,8 +108,8 @@ namespace MetroFramework.Components
         [Browsable(false)]
         MetroColorStyle IMetroComponent.Style
 	    {
-            get { throw new NotSupportedException(); } 
-            set { }
+            get { throw new NotSupportedException(); }
+            set { /* ignore */ }
 	    }
         
         [Browsable(false)]
@@ -110,7 +123,7 @@ namespace MetroFramework.Components
         MetroStyleManager IMetroComponent.StyleManager
 	    {
             get { throw new NotSupportedException(); }
-            set { }
+            set { /* ignore */ }
         }
 
         #endregion

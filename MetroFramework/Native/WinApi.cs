@@ -28,8 +28,9 @@ using System.Security;
 
 namespace MetroFramework.Native
 {
+    // JT: do not make this class public if we have [SuppressUnmanagedCodeSecurity] applied
     [SuppressUnmanagedCodeSecurity]
-    internal class WinApi
+    internal static class WinApi
     {
         #region Structs
 
