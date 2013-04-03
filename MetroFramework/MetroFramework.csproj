@@ -152,6 +152,9 @@
     <Compile Include="MetroPens.cs" />
     <Compile Include="MetroThemeStyle.cs" />
     <Compile Include="Native\DwmApi.cs" />
+    <Compile Include="Native\POINT.cs" />
+    <Compile Include="Native\RECT.cs" />
+    <Compile Include="Native\SIZE.cs" />
     <Compile Include="Native\Taskbar.cs" />
     <Compile Include="Native\WinApi.cs" />
     <Compile Include="Native\WinCaret.cs" />

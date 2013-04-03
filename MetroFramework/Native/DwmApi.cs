@@ -24,95 +24,42 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Security;
 
 namespace MetroFramework.Native
 {
+
+
+    // JT: do not make this class public if we have [SuppressUnmanagedCodeSecurity] applied
+    [SuppressUnmanagedCodeSecurity]
     internal class DwmApi
     {
         #region Structs
 
-        [StructLayout(LayoutKind.Explicit)]
-        public struct RECT
-        {
-            [FieldOffset(12)]
-            public int bottom;
-            [FieldOffset(0)]
-            public int left;
-            [FieldOffset(8)]
-            public int right;
-            [FieldOffset(4)]
-            public int top;
 
-            public RECT(Rectangle rect)
-            {
-                this.left = rect.Left;
-                this.top = rect.Top;
-                this.right = rect.Right;
-                this.bottom = rect.Bottom;
-            }
-
-            public RECT(int left, int top, int right, int bottom)
-            {
-                this.left = left;
-                this.top = top;
-                this.right = right;
-                this.bottom = bottom;
-            }
-
-            public void Set()
-            {
-                this.left = InlineAssignHelper(ref this.top, InlineAssignHelper(ref this.right, InlineAssignHelper(ref this.bottom, 0)));
-            }
-
-            public void Set(Rectangle rect)
-            {
-                this.left = rect.Left;
-                this.top = rect.Top;
-                this.right = rect.Right;
-                this.bottom = rect.Bottom;
-            }
-
-            public void Set(int left, int top, int right, int bottom)
-            {
-                this.left = left;
-                this.top = top;
-                this.right = right;
-                this.bottom = bottom;
-            }
-
-            public Rectangle ToRectangle()
-            {
-                return new Rectangle(this.left, this.top, this.right - this.left, this.bottom - this.top);
-            }
-
-            public int Height
-            {
-                get { return (this.bottom - this.top); }
-            }
-
-            public Size Size
-            {
-                get { return new Size(this.Width, this.Height); }
-            }
-
-            public int Width
-            {
-                get { return (this.right - this.left); }
-            }
-            private static T InlineAssignHelper<T>(ref T target, T value)
-            {
-                target = value;
-                return value;
-            }
-        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct DWM_BLURBEHIND
         {
             public int dwFlags;
             public int fEnable;
-            public IntPtr hRgnBlur;
+            public IntPtr hRgnBlur; // HRGN
             public int fTransitionOnMaximized;
+
+            private DWM_BLURBEHIND(bool enable)
+            {
+                dwFlags = DWM_BB_ENABLE;
+                fEnable = enable ? 1 : 0;
+                hRgnBlur = IntPtr.Zero;
+                fTransitionOnMaximized = 0;
+            }
+
+            public static DWM_BLURBEHIND Enable = new DWM_BLURBEHIND(true);
+            public static DWM_BLURBEHIND Disable = new DWM_BLURBEHIND(false);
+
+            public const int DWM_BB_ENABLE = 1;
+            public const int DWM_BB_BLURREGION = 2;
+            public const int DWM_BB_TRANSITIONONMAXIMIZED = 4;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -275,9 +222,9 @@ namespace MetroFramework.Native
         [DllImport("dwmapi.dll")]
         public static extern int DwmModifyPreviousDxFrameDuration(IntPtr hwnd, int cRefreshes, int fRelative);
         [DllImport("dwmapi.dll")]
-        public static extern int DwmQueryThumbnailSourceSize(IntPtr hThumbnail, ref Size pSize);
+        public static extern int DwmQueryThumbnailSourceSize(IntPtr hThumbnail, ref SIZE pSize);
         [DllImport("dwmapi.dll")]
-        public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, ref Size pMinimizedSize, ref IntPtr phThumbnailId);
+        public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, ref SIZE pMinimizedSize, ref IntPtr phThumbnailId);
         [DllImport("dwmapi.dll")]
         public static extern int DwmSetDxFrameDuration(IntPtr hwnd, int cRefreshes);
         [DllImport("dwmapi.dll")]
@@ -288,6 +235,9 @@ namespace MetroFramework.Native
         public static extern int DwmUnregisterThumbnail(IntPtr hThumbnailId);
         [DllImport("dwmapi.dll")]
         public static extern int DwmUpdateThumbnailProperties(IntPtr hThumbnailId, ref DWM_THUMBNAIL_PROPERTIES ptnProperties);
+
+        [DllImport("dwmap.dlli")]
+        public static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref DWM_BLURBEHIND pBlurBehind);
 
         [DllImport("uxtheme.dll")]
         public static extern int SetWindowThemeAttribute(IntPtr hWnd, WindowThemeAttributeType wtype, ref WTA_OPTIONS attributes, uint size);
