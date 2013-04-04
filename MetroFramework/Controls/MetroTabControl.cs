@@ -206,12 +206,7 @@ namespace MetroFramework.Controls
         {
             base.OnPaint(e);
 
-            Color backColor;
-
-            if (useCustomBackground)
-                backColor = BackColor;
-            else
-                backColor = MetroPaint.BackColor.Form(Theme);
+            Color backColor = useCustomBackground ? BackColor : MetroPaint.BackColor.Form(Theme);
 
             e.Graphics.Clear(backColor);
 
@@ -251,7 +246,7 @@ namespace MetroFramework.Controls
             using (Brush selectionBrush = new SolidBrush(MetroPaint.GetStyleColor(Style)))
             {
                 Rectangle selectedTabRect = GetTabRect(index);
-                Size textAreaRect = MeasureText(TabPages[index].Text);
+                //Size textAreaRect = MeasureText(TabPages[index].Text);
 
                 graphics.FillRectangle(selectionBrush, new Rectangle
                 {
@@ -312,19 +307,20 @@ namespace MetroFramework.Controls
                                   tabRect, foreColor, backColor, MetroPaint.GetTextFormatFlags(TextAlign));
         }
 
+        [SecuritySafeCritical]
         private void DrawUpDown(Graphics graphics)
         {
-            Color foreColor;
+            //Color foreColor;
             Color backColor = Parent != null ? Parent.BackColor : MetroPaint.BackColor.Form(Theme);
 
-            if (!Enabled)
-            {
-                foreColor = MetroPaint.ForeColor.Label.Disabled(Theme);
-            }
-            else
-            {
-                foreColor = !useStyleColors ? MetroPaint.ForeColor.TabControl.Normal(Theme) : MetroPaint.GetStyleColor(Style);
-            }
+            //if (!Enabled)
+            //{
+            //    foreColor = MetroPaint.ForeColor.Label.Disabled(Theme);
+            //}
+            //else
+            //{
+            //    foreColor = !useStyleColors ? MetroPaint.ForeColor.TabControl.Normal(Theme) : MetroPaint.GetStyleColor(Style);
+            //}
 
             RECT borderRect = new RECT();
             WinApi.GetClientRect(scUpDown.Handle, ref borderRect);
@@ -469,6 +465,7 @@ namespace MetroFramework.Controls
 
         #region Helper Methods
 
+        [SecuritySafeCritical]
         private void FindUpDown()
         {
             bool bFound = false;
@@ -504,6 +501,7 @@ namespace MetroFramework.Controls
                 bUpDown = false;
         }
 
+        [SecuritySafeCritical]
         private void UpdateUpDown()
         {
             if (bUpDown)
@@ -517,11 +515,12 @@ namespace MetroFramework.Controls
             }
         }
 
+        [SecuritySafeCritical]
         private int scUpDown_SubClassedWndProc(ref Message m)
         {
             switch (m.Msg)
             {
-                case (int)WinApi.Messages.WM_PAINT:
+                case WinApi.Messages.WM_PAINT:
 
                     IntPtr hDC = WinApi.GetWindowDC(scUpDown.Handle);
 

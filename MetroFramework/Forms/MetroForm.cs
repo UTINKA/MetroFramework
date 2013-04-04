@@ -55,6 +55,12 @@ namespace MetroFramework.Forms
         SystemShadow,
         AeroShadow
     }
+
+    public enum MetroFormBorderStyle
+    {
+        None,
+        FixedSingle
+    }
    
     public class MetroForm : Form, IMetroForm, IDisposable
     {
@@ -118,12 +124,21 @@ namespace MetroFramework.Forms
             get { return MetroPaint.BackColor.Form(Theme); }
         }
 
-        [DefaultValue(FormBorderStyle.None)]
-        [Browsable(false)]
-        public new FormBorderStyle FormBorderStyle
+        /// <summary>
+        ///     A border drawn inside the client area.
+        /// </summary>
+        /// <remarks>
+        ///     This currently only supports <see cref="MetroFormBorderStyle.None"/> (the default) and 
+        ///     <see cref="MetroFormBorderStyle.FixedSingle"/> (a thin grey line).
+        /// </remarks>
+        private MetroFormBorderStyle formBorderStyle = MetroFormBorderStyle.None;
+        [DefaultValue(MetroFormBorderStyle.None)]
+        [Browsable(true)]
+        [Category("Metro Appearance")]
+        public MetroFormBorderStyle BorderStyle
         {
-            get { return FormBorderStyle.None;}
-            set { /* ignore */ }
+            get { return formBorderStyle;}
+            set { formBorderStyle = value;}
         }
 
         private bool isMovable = true;
@@ -201,7 +216,7 @@ namespace MetroFramework.Forms
                      ControlStyles.ResizeRedraw |
                      ControlStyles.UserPaint, true);
 
-            base.FormBorderStyle = FormBorderStyle.None;
+            FormBorderStyle = FormBorderStyle.None;
             Name = "MetroForm";
             StartPosition = FormStartPosition.CenterScreen;
         }
@@ -231,6 +246,21 @@ namespace MetroFramework.Forms
             {
                 Rectangle topRect = new Rectangle(0, 0, Width, borderWidth);
                 e.Graphics.FillRectangle(b, topRect);
+            }
+
+            if (BorderStyle != MetroFormBorderStyle.None)
+            {
+                Color c = MetroPaint.BorderColor.Form(Theme); // TODO: Use style color for active window?
+                using (Pen pen = new Pen(c))
+                {
+                    e.Graphics.DrawLines(pen, new[]
+                        {
+                            new Point(0, borderWidth),
+                            new Point(0, Height - 1),
+                            new Point(Width - 1, Height - 1),
+                            new Point(Width - 1, borderWidth)
+                        });
+                }
             }
 
             if (displayHeader)
