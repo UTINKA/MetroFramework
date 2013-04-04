@@ -6,6 +6,11 @@ using System.Collections.Generic;
 
 namespace MetroFramework.Native
 {
+    //  JT: NOTE: 
+    //
+    //      RECT is different in memory layout from Rectangle
+    //
+
     [DebuggerDisplay("({Top},{Left}) ({Bottom},{Right})")]
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT
@@ -51,6 +56,14 @@ namespace MetroFramework.Native
         public int Width
         {
             get { return (Right - Left); }
+        }
+
+        public void Inflate(int px)
+        {
+            Left -= px;
+            Top -= px;
+            Right += px;
+            Bottom += px;
         }
 
         public static implicit operator Rectangle(RECT other)

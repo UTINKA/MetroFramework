@@ -176,7 +176,7 @@ namespace MetroFramework.Forms
             set { isResizable = value; }
         }
 
-        private ShadowType shadowType = ShadowType.DropShadow;
+        private ShadowType shadowType = ShadowType.AeroShadow;
         [Category("Metro Appearance")]
         [DefaultValue(ShadowType.AeroShadow)]
         public ShadowType ShadowType
@@ -416,6 +416,7 @@ namespace MetroFramework.Forms
             }
         }
 
+        [SecuritySafeCritical]
         private unsafe void OnGetMinMaxInfo(IntPtr hwnd, IntPtr lParam)
         {
                 WinApi.MINMAXINFO* pmmi = (WinApi.MINMAXINFO*)lParam;
@@ -785,7 +786,8 @@ namespace MetroFramework.Forms
                 case ShadowType.AeroShadow:
                     try
                     {
-                        DwmApi.DwmEnableBlurBehindWindow(Handle, ref DwmApi.DWM_BLURBEHIND.Enable);
+                        shadowForm = new MetroAeroDropShadow(this);
+                        return;
                     }
                     catch (Exception)
                     {
@@ -799,9 +801,6 @@ namespace MetroFramework.Forms
 
         private void RemoveShadow()
         {
-            if(ShadowType == ShadowType.AeroShadow && shadowForm == null)
-                DwmApi.DwmEnableBlurBehindWindow(Handle, ref DwmApi.DWM_BLURBEHIND.Disable);
-
             if (shadowForm == null || shadowForm.IsDisposed) return;
 
             shadowForm.Visible = false;
@@ -819,7 +818,6 @@ namespace MetroFramework.Forms
 
             private readonly int _shadowSize;
             private readonly int _wsExStyle;
-            private long _lastResizedOn;
 
             private const int TICKS_PER_MS = 10000;
             private const long RESIZE_REDRAW_INTERVAL = 10*TICKS_PER_MS; 
@@ -846,10 +844,11 @@ namespace MetroFramework.Forms
 
                 TargetForm.Owner = this;
 
+                MaximizeBox = false;
+                MinimizeBox = false;
                 ShowInTaskbar = false;
                 ShowIcon = false;
                 FormBorderStyle = FormBorderStyle.None;
-                StartPosition = TargetForm.StartPosition;
 
                 Bounds = GetShadowBounds();
             }
@@ -864,65 +863,68 @@ namespace MetroFramework.Forms
                 }
             }
 
-            protected virtual Rectangle GetShadowBounds()
+            private Rectangle GetShadowBounds()
             {
                 Rectangle r = TargetForm.Bounds;
                 r.Inflate(_shadowSize, _shadowSize);
                 return r;
             }
 
-            private void RefreshIfVisible()
+            protected abstract void PaintIt();
+
+            protected abstract void ClearIt();
+
+            #region event handlers
+
+            private bool _isBringingToFront;
+
+            protected override void OnDeactivate(EventArgs e)
             {
-                if (TargetForm.Visible && TargetForm.WindowState == FormWindowState.Normal)
-                {
-                    Visible = true;
-                    Invalidate(false);
-                    Update();
-                }
+                base.OnDeactivate(e);
+                _isBringingToFront = true;
             }
 
-            protected virtual void OnTargetFormActivated(object sender, EventArgs e)
+            private void OnTargetFormActivated(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
                 if (Visible) Update();
+                if (_isBringingToFront)
+                {
+                    _isBringingToFront = false;
+                    return;
+                }
+                BringToFront();
             }
 
-            protected virtual void OnTargetFormVisibleChanged(object sender, EventArgs e)
+            private void OnTargetFormVisibleChanged(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
-                Debug.WriteLine("shadow visible = " + Visible + ", form normal = " + (TargetForm.WindowState == FormWindowState.Normal));
                 Visible = TargetForm.Visible && TargetForm.WindowState == FormWindowState.Normal;
                 Update();
             }
 
-            protected virtual void OnTargetFormResizeBegin(object sender, EventArgs e)
+            private long _lastResizedOn;
+
+            private bool IsResizing { get { return _lastResizedOn > 0; } }
+
+            private void OnTargetFormResizeBegin(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
                 _lastResizedOn = DateTime.Now.Ticks;
-                //Visible = false;
             }
 
-            protected virtual void OnTargetFormMove(object sender, EventArgs e)
+            private void OnTargetFormMove(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
-                Debug.WriteLine("shadow visible = " + Visible + ", form normal = " + (TargetForm.WindowState == FormWindowState.Normal));
                 if (!TargetForm.Visible || TargetForm.WindowState != FormWindowState.Normal) 
                     Visible = false; // maximized 
                 else
                     Bounds = GetShadowBounds(); // just track the window - no need to invalidate
             }
 
-            protected virtual void OnTargetFormResize(object sender, EventArgs e)
+            private void OnTargetFormResize(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
-                Debug.WriteLine("shadow visible = " + Visible + ", form normal = " + (TargetForm.WindowState == FormWindowState.Normal));
-                Visible = false;
+                ClearIt();
             }
 
-            protected virtual void OnTargetFormSizeChanged(object sender, EventArgs e)
+            private void OnTargetFormSizeChanged(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
-                Debug.WriteLine("shadow visible = " + Visible + ", form normal = " + (TargetForm.WindowState == FormWindowState.Normal));
                 Bounds = GetShadowBounds();
                 if (IsResizing)
                 {
@@ -930,18 +932,24 @@ namespace MetroFramework.Forms
                         return;
                     _lastResizedOn = DateTime.Now.Ticks;
                 }
-                RefreshIfVisible();
+                PaintIfVisible();
             }
 
-            protected virtual void OnTargetFormResizeEnd(object sender, EventArgs e)
+            private void OnTargetFormResizeEnd(object sender, EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
-                Debug.WriteLine("shadow visible = " + Visible + ", form normal = " + (TargetForm.WindowState == FormWindowState.Normal));
                 _lastResizedOn = 0;
-                RefreshIfVisible();
+                PaintIfVisible();
             }
 
-            protected bool IsResizing { get { return _lastResizedOn > 0; } }
+            private void PaintIfVisible()
+            {
+                if (TargetForm.Visible && TargetForm.WindowState == FormWindowState.Normal)
+                    PaintIt();
+            }
+
+            #endregion
+
+            #region Constants
 
             /// <summary>
             ///     WS_EX_TRANSPARENT does two things:
@@ -967,6 +975,41 @@ namespace MetroFramework.Forms
             ///     The system does not bring this window to the foreground when the user minimizes or closes the foreground window.
             /// </summary>
             protected const int WS_EX_NOACTIVATE = 0x8000000;
+
+            #endregion
+
+        }
+
+        #endregion
+
+        #region MetroAeroDropShadow
+
+        protected class MetroAeroDropShadow : MetroShadowBase
+        {
+            public MetroAeroDropShadow(Form targetForm)
+                : base(targetForm, 0, WS_EX_TRANSPARENT | WS_EX_NOACTIVATE )
+            {
+                // Results differ between 32-bit and 64-bit... In 32-it, we seem to be able to use all border styles
+                // (except None, of course). In 64 bit, the only fully working style is SizableToolWindow.
+                // In particular (64-bit):
+                //   FixedDialog gives a small transparent frame and round corners. 
+                //   Same with Fixed 3D or FixedSingle, but there are strange animation artifacts!?
+                //   FixedToolWindow results in a small frame straight corners, no anim artifacts
+                //   Sizable comes with no frames, but artifacts (64, OK in 32)
+                FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            }
+
+            protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+            {
+                // ignore bogus size-only updates, we get better info from TargetForm
+                if (specified == BoundsSpecified.Size) return;
+                base.SetBoundsCore(x, y, width, height, specified);
+            }
+
+            protected override void PaintIt() { Visible = true; }
+
+            protected override void ClearIt() { /* nothing */ }
+
         }
 
         #endregion
@@ -983,6 +1026,18 @@ namespace MetroFramework.Forms
                          ControlStyles.ResizeRedraw |
                          ControlStyles.UserPaint, true);
                 Opacity = 0.2;
+            }
+
+            protected override void ClearIt()
+            {
+                Visible = false;
+            }
+
+            protected override void PaintIt()
+            {
+                Visible = true;
+                Invalidate(false);
+                Update();
             }
 
             protected override void OnPaint(PaintEventArgs e)
@@ -1003,58 +1058,38 @@ namespace MetroFramework.Forms
 
         protected class MetroRealisticDropShadow : MetroShadowBase
         {
-            private bool isBringingToFront;
-
             public MetroRealisticDropShadow(Form targetForm) 
                 : base(targetForm, 15, WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE)
             {
             }
 
-            protected override void OnDeactivate(EventArgs e)
-            {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
-                base.OnDeactivate(e);
-                isBringingToFront = true;
-            }
-
-            protected override void OnTargetFormActivated(object sender, EventArgs e)
-            {
-                base.OnTargetFormActivated(sender, e);
-
-                if (isBringingToFront)
-                {
-                    isBringingToFront = false;
-                    return;
-                }
-
-                Debug.WriteLine("BringToFront");
-                BringToFront();
-            }
-
             protected override void OnLoad(EventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
                 base.OnLoad(e);
                 PaintIt();
             }
 
-            protected override void OnTargetFormResize(object sender, EventArgs e)
-            {
-                base.OnTargetFormResize(sender, e);
-                ClearShadow();
-            }
-
             protected override void OnPaint(PaintEventArgs e)
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
+                Visible = true;
                 PaintIt();
             }
 
-            private void PaintIt()
+            protected override void PaintIt()
             {
-                Debug.WriteLine(MethodInfo.GetCurrentMethod());
                 using( Bitmap getShadow = DrawBlurBorder() )
                     SetBitmap(getShadow, 255);
+            }
+
+            protected override void ClearIt()
+            {
+                Bitmap img = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+                Graphics g = Graphics.FromImage(img);
+                g.Clear(Color.Transparent);
+                g.Flush();
+                g.Dispose();
+                SetBitmap(img, 255);
+                img.Dispose();
             }
 
             #region Drawing methods
@@ -1098,17 +1133,6 @@ namespace MetroFramework.Forms
                     }
                     WinApi.DeleteDC(memDc);
                 }
-            }
-
-            private void ClearShadow()
-            {
-                Bitmap img = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-                Graphics g = Graphics.FromImage(img);
-                g.Clear(Color.Transparent);
-                g.Flush();
-                g.Dispose();
-                SetBitmap(img, 255);
-                img.Dispose();
             }
 
             private Bitmap DrawBlurBorder()

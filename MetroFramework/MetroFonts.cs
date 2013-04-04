@@ -21,6 +21,8 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -38,6 +40,20 @@ namespace MetroFramework
     }
 
     public enum MetroLabelWeight
+    {
+        Light,
+        Regular,
+        Bold
+    }
+
+    public enum MetroTileTextSize
+    {
+        Small,
+        Medium,
+        Tall
+    }
+
+    public enum MetroTileTextWeight
     {
         Light,
         Regular,
@@ -100,87 +116,64 @@ namespace MetroFramework
         Bold
     }
 
-    public sealed class MetroFonts
+    public static class MetroFonts
     {
-        private static PrivateFontCollection fontCollection = new PrivateFontCollection();
 
-        private static string ResolveFallbackFontname(string inputName, FontStyle inputStyle)
+        #region Font Resolver
+
+        internal interface IMetroFontResolver
         {
-            if (inputName == "Segoe UI Light")
-            {
-                return "Open Sans Light";
-            }
-            else if (inputName == "Segoe UI" && inputStyle == FontStyle.Bold)
-            {
-                return "Open Sans Bold";
-            }
-
-            return "Open Sans";
+            Font ResolveFont(string familyName, float emSize, FontStyle fontStyle, GraphicsUnit unit);
         }
 
-        private static int AddResourceFont(string resourceName)
+        private class DefaultFontResolver : IMetroFontResolver
         {
-            for (int i = 0; i < fontCollection.Families.Length; i++)
+            public Font ResolveFont(string familyName, float emSize, FontStyle fontStyle, GraphicsUnit unit)
             {
-                FontFamily fontFamily = fontCollection.Families[i];
-                if (fontFamily.Name == resourceName)
+                return new Font(familyName, emSize, fontStyle, unit);
+            }
+        }
+
+        private static IMetroFontResolver FontResolver;
+
+        static MetroFonts()
+        {
+            try
+            {
+                Type t = Type.GetType(AssemblyRef.MetroFrameworkFontResolver);
+                if (t != null)
                 {
-                    return i;
+                    FontResolver = (IMetroFontResolver)Activator.CreateInstance(t);
+                    if (FontResolver != null)
+                    {
+                        Debug.WriteLine("'" + AssemblyRef.MetroFrameworkFontResolver + "' loaded.", "MetroFonts");
+                        return;
+                    }
                 }
             }
-
-            resourceName = resourceName.Replace(" ", "-").Replace("Open-Sans", "OpenSans");
-            if (resourceName == "OpenSans")
+            catch (Exception ex)
             {
-                resourceName += "-Regular";
+                // ignore
+                Debug.WriteLine(ex.Message, "MetroFonts");
             }
-
-            resourceName = "MetroFramework.Resources.Fonts." + resourceName + ".ttf";
-
-            Stream fontStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
-            IntPtr data = Marshal.AllocCoTaskMem((int)fontStream.Length);
-
-            byte[] fontdata = new byte[fontStream.Length];
-
-            fontStream.Read(fontdata, 0, (int)fontStream.Length);
-
-            Marshal.Copy(fontdata, 0, data, (int)fontStream.Length);
-
-            fontCollection.AddMemoryFont(data, (int)fontStream.Length);
-            fontStream.Close();
-
-            Marshal.FreeCoTaskMem(data);
-
-            return fontCollection.Families.Length - 1;
+            FontResolver = new DefaultFontResolver();
         }
 
-        private static Font GetSaveFont(string key, FontStyle style, float size)
-        {
-            Font fontTester = new Font(key, size, style, GraphicsUnit.Pixel);
-            if (fontTester.Name == key)
-            {
-                return fontTester;
-            }
-            fontTester.Dispose();
-
-            int fontIndex = AddResourceFont(ResolveFallbackFontname(key, style));
-
-            return new Font(fontCollection.Families[fontIndex], size, style, GraphicsUnit.Pixel);
-        }
+        #endregion
 
         public static Font DefaultLight(float size)
         {
-            return GetSaveFont("Segoe UI Light", FontStyle.Regular, size);
+            return FontResolver.ResolveFont("Segoe UI Light", size, FontStyle.Regular, GraphicsUnit.Pixel);
         }
 
         public static Font Default(float size)
         {
-            return GetSaveFont("Segoe UI", FontStyle.Regular, size);
+            return FontResolver.ResolveFont("Segoe UI", size, FontStyle.Regular, GraphicsUnit.Pixel);
         }
 
         public static Font DefaultBold(float size)
         {
-            return GetSaveFont("Segoe UI", FontStyle.Bold, size);
+            return FontResolver.ResolveFont("Segoe UI", size, FontStyle.Bold, GraphicsUnit.Pixel);
         }
 
         public static Font Title
@@ -198,9 +191,37 @@ namespace MetroFramework
             get { return DefaultBold(11f); }
         }
 
-        public static Font Tile
+        public static Font Tile(MetroTileTextSize labelSize, MetroTileTextWeight labelWeight)
         {
-            get { return Default(14f); }
+            if (labelSize == MetroTileTextSize.Small)
+            {
+                if (labelWeight == MetroTileTextWeight.Light)
+                    return DefaultLight(12f);
+                if (labelWeight == MetroTileTextWeight.Regular)
+                    return Default(12f);
+                if (labelWeight == MetroTileTextWeight.Bold)
+                    return DefaultBold(12f);
+            }
+            else if (labelSize == MetroTileTextSize.Medium)
+            {
+                if (labelWeight == MetroTileTextWeight.Light)
+                    return DefaultLight(14f);
+                if (labelWeight == MetroTileTextWeight.Regular)
+                    return Default(14f);
+                if (labelWeight == MetroTileTextWeight.Bold)
+                    return DefaultBold(14f);
+            }
+            else if (labelSize == MetroTileTextSize.Tall)
+            {
+                if (labelWeight == MetroTileTextWeight.Light)
+                    return DefaultLight(18f);
+                if (labelWeight == MetroTileTextWeight.Regular)
+                    return Default(18f);
+                if (labelWeight == MetroTileTextWeight.Bold)
+                    return DefaultBold(18f);
+            }
+
+            return DefaultLight(14f);
         }
 
         public static Font TileCount

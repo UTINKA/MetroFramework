@@ -6,6 +6,8 @@ using System.ComponentModel;
 
 namespace MetroFramework.Native
 {
+    //  JT: I think these are obsolete - it should be possible to use the equivalent struct from System.Drawing
+
     [DebuggerDisplay("({Width},{Height})")]
     [StructLayout(LayoutKind.Sequential)]
     public struct SIZE

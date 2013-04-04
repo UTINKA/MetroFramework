@@ -236,7 +236,7 @@ namespace MetroFramework.Native
         [DllImport("dwmapi.dll")]
         public static extern int DwmUpdateThumbnailProperties(IntPtr hThumbnailId, ref DWM_THUMBNAIL_PROPERTIES ptnProperties);
 
-        [DllImport("dwmap.dlli")]
+        [DllImport("dwmapi.dll")]
         public static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref DWM_BLURBEHIND pBlurBehind);
 
         [DllImport("uxtheme.dll")]

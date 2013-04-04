@@ -86,12 +86,12 @@
             this.metroProgressSpinner1 = new MetroFramework.Controls.MetroProgressSpinner();
             this.metroProgressBar = new MetroFramework.Controls.MetroProgressBar();
             this.metroTabPage5 = new MetroFramework.Controls.MetroTabPage();
+            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.metroToolTip = new MetroFramework.Components.MetroToolTip();
             this.metroStyleExtender = new MetroFramework.Components.MetroStyleExtender(this.components);
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.metroTabControl1.SuspendLayout();
             this.metroTabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.metroStyleManager)).BeginInit();
@@ -850,7 +850,7 @@
             this.metroProgressBar1.Location = new System.Drawing.Point(28, 76);
             this.metroProgressBar1.Name = "metroProgressBar1";
             this.metroProgressBar1.ProgressBarStyle = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.metroProgressBar1.Size = new System.Drawing.Size(466, 23);
+            this.metroProgressBar1.Size = new System.Drawing.Size(0, 23);
             this.metroProgressBar1.Style = MetroFramework.MetroColorStyle.Blue;
             this.metroProgressBar1.StyleManager = this.metroStyleManager;
             this.metroProgressBar1.TabIndex = 7;
@@ -881,7 +881,7 @@
             this.metroScrollBar1.Name = "metroScrollBar1";
             this.metroScrollBar1.Orientation = MetroFramework.Controls.MetroScrollOrientation.Horizontal;
             this.metroScrollBar1.ScrollbarSize = 10;
-            this.metroScrollBar1.Size = new System.Drawing.Size(466, 10);
+            this.metroScrollBar1.Size = new System.Drawing.Size(0, 10);
             this.metroScrollBar1.Style = MetroFramework.MetroColorStyle.Blue;
             this.metroScrollBar1.StyleManager = this.metroStyleManager;
             this.metroScrollBar1.TabIndex = 5;
@@ -921,7 +921,7 @@
             this.metroProgressBar.Enabled = false;
             this.metroProgressBar.Location = new System.Drawing.Point(28, 47);
             this.metroProgressBar.Name = "metroProgressBar";
-            this.metroProgressBar.Size = new System.Drawing.Size(466, 23);
+            this.metroProgressBar.Size = new System.Drawing.Size(0, 23);
             this.metroProgressBar.Style = MetroFramework.MetroColorStyle.Blue;
             this.metroProgressBar.StyleManager = this.metroStyleManager;
             this.metroProgressBar.TabIndex = 2;
@@ -950,6 +950,24 @@
             this.metroTabPage5.VerticalScrollbarHighlightOnWheel = false;
             this.metroTabPage5.VerticalScrollbarSize = 10;
             // 
+            // propertyGrid1
+            // 
+            this.metroStyleExtender.SetApplyMetroTheme(this.propertyGrid1, true);
+            this.propertyGrid1.Location = new System.Drawing.Point(263, 23);
+            this.propertyGrid1.Name = "propertyGrid1";
+            this.propertyGrid1.SelectedObject = this;
+            this.propertyGrid1.Size = new System.Drawing.Size(256, 230);
+            this.propertyGrid1.TabIndex = 5;
+            // 
+            // richTextBox1
+            // 
+            this.metroStyleExtender.SetApplyMetroTheme(this.richTextBox1, true);
+            this.richTextBox1.Location = new System.Drawing.Point(0, 78);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(197, 90);
+            this.richTextBox1.TabIndex = 4;
+            this.richTextBox1.Text = "This RichTextBox has ApplyMetroTheme=true\nDoes it work?";
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -975,31 +993,12 @@
             this.metroToolTip.StyleManager = null;
             this.metroToolTip.Theme = MetroFramework.MetroThemeStyle.Light;
             // 
-            // richTextBox1
-            // 
-            this.metroStyleExtender.SetApplyMetroTheme(this.richTextBox1, true);
-            this.richTextBox1.Location = new System.Drawing.Point(0, 78);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(197, 90);
-            this.richTextBox1.TabIndex = 4;
-            this.richTextBox1.Text = "This RichTextBox has ApplyMetroTheme=true\nDoes it work?";
-            // 
-            // propertyGrid1
-            // 
-            this.metroStyleExtender.SetApplyMetroTheme(this.propertyGrid1, true);
-            this.propertyGrid1.Location = new System.Drawing.Point(263, 23);
-            this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.SelectedObject = this;
-            this.propertyGrid1.Size = new System.Drawing.Size(256, 230);
-            this.propertyGrid1.TabIndex = 5;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(570, 372);
             this.Controls.Add(this.metroTabControl1);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "MainForm";
             this.StyleManager = this.metroStyleManager;
             this.Text = "metro framework";

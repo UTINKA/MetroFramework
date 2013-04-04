@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 
 namespace MetroFramework.Native
 {
+    //  JT: I think these are obsolete - it should be possible to use the equivalent struct from System.Drawing
+
     [DebuggerDisplay("({X},{Y})")]
     [StructLayout(LayoutKind.Sequential)]
     public struct POINT
