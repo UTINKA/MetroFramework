@@ -33,47 +33,8 @@ using MetroFramework.Drawing;
 namespace MetroFramework.Controls
 {
     [ToolboxBitmap(typeof(ComboBox))]
-    public class MetroComboBox : ComboBox, IMetroControl
+    public class MetroComboBox : MetroComboBoxBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
@@ -95,7 +56,7 @@ namespace MetroFramework.Controls
 
         private MetroLinkSize metroLinkSize = MetroLinkSize.Medium;
         [DefaultValue(MetroLinkSize.Medium)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLinkSize FontSize
         {
             get { return metroLinkSize; }
@@ -104,7 +65,7 @@ namespace MetroFramework.Controls
 
         private MetroLinkWeight metroLinkWeight = MetroLinkWeight.Regular;
         [DefaultValue(MetroLinkWeight.Regular)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLinkWeight FontWeight
         {
             get { return metroLinkWeight; }

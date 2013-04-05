@@ -32,60 +32,42 @@ using MetroFramework.Drawing;
 
 namespace MetroFramework.Controls
 {
-    public class MetroUserControl : UserControl, IMetroControl
+    public class MetroUserControl : MetroUserControlBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
-
         #region Fields
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }
             set { useCustomBackground = value; }
         }
 
+        /// <summary>
+        ///     A border drawn inside the client area.
+        /// </summary>
+        /// <remarks>
+        ///     This currently only supports <see cref="MetroBorderStyle.None"/> (the default) and 
+        ///     <see cref="MetroBorderStyle.FixedSingle"/> (a thin grey line).
+        /// </remarks>
+        private MetroBorderStyle _borderStyle = MetroBorderStyle.None;
+        [DefaultValue(MetroBorderStyle.None)]
+        [Browsable(true)]
+        [Category(MetroDefaults.CatAppearance)]
+        public new MetroBorderStyle BorderStyle
+        {
+            get { return _borderStyle; }
+            set { _borderStyle = value; }
+        }
+
         #endregion
+
+        public MetroUserControl()
+        {
+            base.BorderStyle = System.Windows.Forms.BorderStyle.None;
+        }
 
         #region Overridden Methods
 
@@ -98,6 +80,22 @@ namespace MetroFramework.Controls
                 backColor = BackColor;
 
             e.Graphics.Clear(backColor);
+
+            if (BorderStyle != MetroBorderStyle.None)
+            {
+                Color c = MetroPaint.BorderColor.Form(Theme);
+                using (Pen pen = new Pen(c))
+                {
+                    e.Graphics.DrawLines(pen, new[]
+                        {
+                            new Point(0, 0),
+                            new Point(0, Height - 1),
+                            new Point(Width - 1, Height - 1),
+                            new Point(Width - 1, 0),
+                            new Point(0, 0)
+                        });
+                }
+            }
         }
 
         protected override void OnEnabledChanged(EventArgs e)

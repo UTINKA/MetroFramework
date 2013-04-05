@@ -32,47 +32,8 @@ using MetroFramework.Interfaces;
 namespace MetroFramework.Controls
 {
     [Designer("MetroFramework.Design.MetroTextBoxDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
-    public class MetroTextBox : Control, IMetroControl
+    public class MetroTextBox : MetroControlBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
@@ -80,7 +41,7 @@ namespace MetroFramework.Controls
         
         private bool useStyleColors = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool UseStyleColors
         {
             get { return useStyleColors; }
@@ -89,7 +50,7 @@ namespace MetroFramework.Controls
 
         private MetroTextBoxSize metroTextBoxSize = MetroTextBoxSize.Small;
         [DefaultValue(MetroTextBoxSize.Small)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroTextBoxSize FontSize
         {
             get { return metroTextBoxSize; }
@@ -98,7 +59,7 @@ namespace MetroFramework.Controls
 
         private MetroTextBoxWeight metroTextBoxWeight = MetroTextBoxWeight.Regular;
         [DefaultValue(MetroTextBoxWeight.Regular)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroTextBoxWeight FontWeight
         {
             get { return metroTextBoxWeight; }
@@ -107,7 +68,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }
@@ -116,7 +77,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomForeColor = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomForeColor
         {
             get { return useCustomForeColor; }
@@ -126,7 +87,7 @@ namespace MetroFramework.Controls
         [Browsable(true)]
         [EditorBrowsable(EditorBrowsableState.Always)]
         [DefaultValue("")]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public string PromptText
         {
             get { return baseTextBox.PromptText; }

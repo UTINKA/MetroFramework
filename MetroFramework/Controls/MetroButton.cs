@@ -35,47 +35,8 @@ namespace MetroFramework.Controls
     [Designer("MetroFramework.Design.MetroButtonDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(Button))]
     [DefaultEvent("Click")]
-    public class MetroButton : Button, IMetroControl
+    public class MetroButton : MetroButtonBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 

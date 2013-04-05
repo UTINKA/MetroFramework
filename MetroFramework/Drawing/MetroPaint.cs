@@ -26,6 +26,12 @@ using System.Windows.Forms;
 
 namespace MetroFramework.Drawing
 {
+    public enum MetroBorderStyle
+    {
+        None,
+        FixedSingle
+    }
+
     public sealed class MetroPaint
     {
         public sealed class BorderColor

@@ -25,7 +25,8 @@ namespace MetroFramework
 {
     public enum MetroThemeStyle
     {
-        Light,
-        Dark
+        Default = -1,
+        Light = 1,
+        Dark = 2,
     }
 }

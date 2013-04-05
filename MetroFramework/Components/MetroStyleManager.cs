@@ -25,47 +25,152 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
-
 using MetroFramework.Interfaces;
 
 namespace MetroFramework.Components
 {
-    public sealed class MetroStyleManager : Component, ICloneable, ISupportInitialize
+    /// <summary>
+    ///     Cascading theme and styles management.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This class has multiple use cases:
+    ///     </para>
+    ///      <list type="numbered">
+    ///     <item>
+    ///         <description>
+    ///             On the global level, it is instantited as a static singleton instance (<see cref="Default"/>).
+    ///             Any changes applied here will be propagated to all active and future controls, unless 
+    ///             more specific values are applied.
+    ///             The global instance is instantiated using the default constructor and pulls default values
+    ///             from <see cref="MetroDefaults"/>.
+    ///         </description>
+    ///         <description>
+    ///             It can be added as a component to container controls (e.g. <see cref="MetroFramework.Forms.MetroForm"/>
+    ///             or <see cref="MetroFramework.Controls.MetroUserControl"/>) to override settings 
+    ///             on the container level. Any setting not specified is still managed by the global instance.
+    ///             The designer is initializing components using the <see cref="MetroStyleManager(IContainer)"/>constructor
+    ///             and the developer must assign the form to the style manager's _owner property.
+    ///         </description>
+    ///         <description>
+    ///             On the control level, it acts as a property store for per-control overrides. 
+    ///             Controls use the default constructor.
+    ///         </description>
+    ///     </item>
+    ///     </list>
+    /// </remarks>
+    public sealed class MetroStyleManager : Component, ISupportInitialize, IMetroComponent, IMetroStyledComponent
     {
+
+        public static readonly MetroStyleManager Default = new MetroStyleManager();
+
+        private MetroColorStyle _metroStyle = MetroColorStyle.Default;
+        [DefaultValue(MetroColorStyle.Default)]
+        [Category(MetroDefaults.CatAppearance)]
+        public MetroColorStyle Style
+        {
+            get
+            {
+                return (DesignMode || _metroStyle != MetroColorStyle.Default) ? _metroStyle : _styleManager.Style ;
+            }
+            set
+            {
+                // The singleton instance must always have a non-default value
+                if (_styleManager == null && value == MetroColorStyle.Default) value = MetroDefaults.Style;
+
+                bool changed = Style != value;
+                _metroStyle = value;
+                if(changed) OnMetroStyleChanged(this, new EventArgs());
+            }
+        }
+
+        private MetroThemeStyle _metroTheme = MetroThemeStyle.Default;
+        [DefaultValue(MetroThemeStyle.Default)]
+        [Category(MetroDefaults.CatAppearance)]
+        public MetroThemeStyle Theme
+        {
+            get
+            {
+                return (DesignMode || _metroTheme != MetroThemeStyle.Default) ? _metroTheme : _styleManager.Theme ;
+            }
+            set
+            {
+                // The singleton instance must always have a non-default value
+                if (_styleManager == null && value == MetroThemeStyle.Default) value = MetroDefaults.Theme;
+
+                bool changed = Theme != value;
+                _metroTheme = value;
+                if(changed) OnMetroStyleChanged(this, new EventArgs());
+            }         
+        }
+
+        private MetroStyleManager _styleManager;
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        MetroStyleManager IMetroStyledComponent.InternalStyleManager
+        {
+            get { return _styleManager; } 
+            set
+            {
+                if(value==null) throw new ArgumentNullException();
+                if(value==this) throw new ArgumentException();
+                bool changed = value.Theme != Theme || value.Style != Style;
+                if( _styleManager != null) _styleManager.MetroStyleChanged -= OnMetroStyleChanged;
+                _styleManager = value;
+                _styleManager.MetroStyleChanged += OnMetroStyleChanged;
+                if(changed) OnMetroStyleChanged(this, new EventArgs());
+            }
+        }
+
+        public event EventHandler MetroStyleChanged;
+
+        private void OnMetroStyleChanged(object sender, EventArgs e)
+        {
+            if (!isInitializing)
+            {
+                Update();
+                var ev = MetroStyleChanged;
+                if (ev != null) ev(this, e);
+            }
+        }
+
         public MetroStyleManager()
         {
-        
+            _styleManager = Default;
+            if (_styleManager != null)
+            {
+                _styleManager.MetroStyleChanged += OnMetroStyleChanged;
+            }
+            else // we are the singleton instance - provide actua defaults here
+            {
+                _metroTheme = MetroDefaults.Theme;
+                _metroStyle = MetroDefaults.Style;
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && _styleManager != null)
+            {
+                _styleManager.MetroStyleChanged -= OnMetroStyleChanged;
+                // NOTE: we don't dispose _styleManager as we don't have ownership !
+            }
+            base.Dispose(disposing);
         }
 
         /// <summary>
-        ///     The Container owning components.
+        ///     The Container owning the components. This is usualy the form's "components" field, not the form itself.
         /// </summary>
-        private readonly IContainer parentContainer;
+        private readonly IContainer _parentContainer;
 
         public MetroStyleManager(IContainer parentContainer)
             : this()
         {
             if (parentContainer != null)
             {
-                this.parentContainer = parentContainer;
-                this.parentContainer.Add(this);
+                this._parentContainer = parentContainer;
+                this._parentContainer.Add(this);
             }
         }
-
-        #region ICloneable
-
-        // What's the use case here?
-        // Do we need to clone parent container, too?
-
-        public object Clone()
-        {
-            MetroStyleManager newStyleManager = new MetroStyleManager();
-            newStyleManager.metroTheme = Theme;
-            newStyleManager.metroStyle = Style;
-            return newStyleManager;
-        }
-
-        #endregion
 
         #region ISupportInitialize
 
@@ -83,158 +188,124 @@ namespace MetroFramework.Components
         void ISupportInitialize.EndInit()
         {
             isInitializing = false;
-            Refresh();
+            Update();
         }
 
         #endregion
 
-        private ContainerControl owner;
-        public ContainerControl Owner
+        /// <summary>
+        ///     The container control (e.g. form or user control) this style manager is managing.
+        /// </summary>
+        private IMetroContainerControl _owner;
+
+        public IMetroContainerControl Owner
         {
-            get { return owner; }
+            get { return _owner; }
             set
             {
                 // We attach to ControlAdded to propagate styles to dynamically added controls
 
-                if (owner != null) 
+                if (_owner != null) 
                 {
-                    owner.ControlAdded -= ControlAdded;
+                    if ( _owner.StyleManager == this) _owner.StyleManager = null;
+                    ContainerControl cc = _owner as ContainerControl;
+                    if( cc != null ) cc.ControlAdded -= ControlAdded;
                 }
 
-                owner = value;
+                _owner = value;
 
                 if (value != null)
                 {
-                    owner.ControlAdded += ControlAdded;
+                    value.StyleManager = this;
+                    ContainerControl cc = _owner as ContainerControl;
+                    if (cc != null) cc.ControlAdded += ControlAdded;
 
                     if (!isInitializing)
                     {
-                        UpdateControl(value);
+                        UpdateControl((Control)value);
                     }
                 }
             }
         }
 
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [DefaultValue(MetroColorStyle.Blue)]
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get { return metroStyle; }
-            set 
-            { 
-                metroStyle = value;
-
-                if (!isInitializing)
-                {
-                    Refresh();
-                }
-            }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [DefaultValue(MetroThemeStyle.Light)]
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get { return metroTheme; }
-            set 
-            {
-                metroTheme = value;
-
-                if (!isInitializing)
-                {
-                    Refresh();
-                }
-            }
-        }
-
-        private void ControlAdded(object sender, ControlEventArgs e)
+         private void ControlAdded(object sender, ControlEventArgs e)
         {
             if (!isInitializing)
             {
                 UpdateControl(e.Control);
             }
-        }
-
-        public void Refresh()
+        } 
+        
+        public void Update()
         {
-            if (owner != null)
+            if (_owner != null)
             {
-                UpdateControl(owner);
+                UpdateControl((Control)_owner);
             }
 
-            if (parentContainer == null || parentContainer.Components == null)
+            if (_parentContainer == null || _parentContainer.Components == null)
             {
                 return;
             }
 
             // propagate style information to components, i.e. MetroStyleExtender
-            foreach (Object obj in parentContainer.Components)
+            foreach (Object obj in _parentContainer.Components)
             {
-                if (obj is IMetroComponent)
-                {
-                    ApplyTheme((IMetroComponent)obj);
-                }
+                // avoid infinite loops
+                if (ReferenceEquals(obj, this)) continue;
+                IMetroStyledComponent c = obj as IMetroStyledComponent;
+                if (c != null) c.InternalStyleManager = this;
             }
         }
 
-        private void UpdateControl(Control ctrl)
+        private void UpdateControl(Control control)
         {
-            if (ctrl == null)
+            if (control == null)
             {
                 return;
             }
 
-            IMetroControl metroControl = ctrl as IMetroControl;
-            if (metroControl != null)
+            // If a container conrol is exposing a Style Manager, we link to it
+            // but do not access the container's children.
+            IMetroContainerControl container = control as IMetroContainerControl;
+            if (container != null && container.StyleManager != null && !ReferenceEquals(this, container.StyleManager))
             {
-                ApplyTheme(metroControl);
+                ((IMetroStyledComponent)container.StyleManager).InternalStyleManager = this;
+                return;
             }
 
-            IMetroComponent metroComponent = ctrl as IMetroComponent;
-            if (metroComponent != null)
+            // Link to metro controls
+            IMetroStyledComponent styledComponent = control as IMetroStyledComponent;
+            if (styledComponent != null)
             {
-                ApplyTheme(metroComponent);
+                styledComponent.InternalStyleManager = this;
             }
 
-            TabControl tabControl = ctrl as TabControl;
+            if (control.ContextMenuStrip != null)
+            {
+                UpdateControl(control.ContextMenuStrip);
+            }
+
+            // descend into tab pages
+            TabControl tabControl = control as TabControl;
             if (tabControl != null)
             {
-                foreach (TabPage tp in ((TabControl)ctrl).TabPages)
+                foreach (TabPage tp in tabControl.TabPages)
                 {
                     UpdateControl(tp);
                 }
             }
 
-            if (ctrl.Controls != null)
+            // descend into child controls
+            if (control.Controls != null)
             {
-                foreach (Control child in ctrl.Controls)
+                foreach (Control child in control.Controls)
                 {
                     UpdateControl(child);
                 }
             }
 
-            if (ctrl.ContextMenuStrip != null)
-            {
-                UpdateControl(ctrl.ContextMenuStrip);
-            }
-
-            ctrl.Refresh();
         }
 
-        private void ApplyTheme(IMetroControl control)
-        {
-            control.Style = Style;
-            control.Theme = Theme;
-            control.StyleManager = this;
-        }
-
-        private void ApplyTheme(IMetroComponent component)
-        {
-            component.Style = Style;
-            component.Theme = Theme;
-            component.StyleManager = this;
-        }
     }
 }

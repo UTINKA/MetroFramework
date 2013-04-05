@@ -32,12 +32,41 @@ using MetroFramework.Controls;
 using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 using MetroFramework.Native;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace MetroFramework.Forms
 {
     public sealed class MetroTaskWindow : MetroForm
     {
+
+        private IContainer components;
+
+        private void InitializeComponent()
+        {
+            this.components = new System.ComponentModel.Container();
+            this.metroStyleManager = new MetroFramework.Components.MetroStyleManager(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.metroStyleManager)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // metroStyleManager
+            // 
+            this.metroStyleManager.Owner = this;
+            // 
+            // MetroTaskWindow
+            // 
+            this.Name = "MetroTaskWindow";
+            ((System.ComponentModel.ISupportInitialize)(this.metroStyleManager)).EndInit();
+            this.ResumeLayout(false);
+
+        }
+
+        private MetroStyleManager metroStyleManager;
+
+        #region Singleton Instance
+
         private static MetroTaskWindow singletonWindow;
+
         public static void ShowTaskWindow(IWin32Window parent, string title, Control userControl, int secToClose)
         {
             if (singletonWindow != null)
@@ -51,15 +80,11 @@ namespace MetroFramework.Forms
             singletonWindow.Text = title;
             singletonWindow.Resizable = false;
             singletonWindow.StartPosition = FormStartPosition.Manual;
-            
-            if (parent != null && parent is IMetroForm)
-            {
-                singletonWindow.Theme = ((IMetroForm)parent).Theme;
-                singletonWindow.Style = ((IMetroForm)parent).Style;
-                singletonWindow.StyleManager = ((IMetroForm)parent).StyleManager.Clone() as MetroStyleManager;
 
-                if (singletonWindow.StyleManager != null)
-                    singletonWindow.StyleManager.Owner = singletonWindow;
+            IMetroForm parentForm = parent as IMetroForm;
+            if (parentForm != null && parentForm.StyleManager != null)
+            {
+                ((IMetroStyledComponent)singletonWindow.metroStyleManager).InternalStyleManager = parentForm.StyleManager;
             }
 
             singletonWindow.Show(parent);
@@ -102,6 +127,8 @@ namespace MetroFramework.Forms
             }
         }
 
+        #endregion
+
         private bool cancelTimer = false;
         public bool CancelTimer
         {
@@ -139,10 +166,6 @@ namespace MetroFramework.Forms
         {
             if (!isInitialized)
             {
-                controlContainer.Theme = Theme;
-                controlContainer.Style = Style;
-                controlContainer.StyleManager = StyleManager;
-
                 MaximizeBox = false;
                 MinimizeBox = false;
                 Movable = false;
@@ -176,8 +199,6 @@ namespace MetroFramework.Forms
                 controlContainer.Location = new Point(0, 60);
                 controlContainer.Size = new Size(Width - 40, Height - 80);
                 controlContainer.Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left;
-
-                StyleManager.Refresh();
 
                 isInitialized = true;
 
@@ -220,5 +241,7 @@ namespace MetroFramework.Forms
             if (!cancelTimer)
                 timer.Reset();
         }
+
+
     }
 }

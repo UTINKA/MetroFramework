@@ -34,45 +34,9 @@ namespace MetroFramework.Controls
 {
     [Designer("MetroFramework.Design.MetroTileDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(Button))]
-    public class MetroTile : Button, IContainerControl, IMetroControl
+    public class MetroTile : MetroButtonBase, IContainerControl
     {
         #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
 
         private Control activeControl = null;
         [Browsable(false)]
@@ -100,7 +64,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }
@@ -109,7 +73,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomForeColor = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomForeColor
         {
             get { return useCustomForeColor; }
@@ -118,7 +82,7 @@ namespace MetroFramework.Controls
 
         private bool paintTileCount = true;
         [DefaultValue(true)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool PaintTileCount
         {
             get { return paintTileCount; }
@@ -142,7 +106,7 @@ namespace MetroFramework.Controls
 
         private Image tileImage = null;
         [DefaultValue(null)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public Image TileImage
         {
             get { return tileImage; }
@@ -151,7 +115,7 @@ namespace MetroFramework.Controls
 
         private bool useTileImage = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool UseTileImage
         {
             get { return useTileImage; }
@@ -160,7 +124,7 @@ namespace MetroFramework.Controls
 
         private ContentAlignment tileImageAlign = ContentAlignment.TopLeft;
         [DefaultValue(ContentAlignment.TopLeft)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public ContentAlignment TileImageAlign
         {
             get { return tileImageAlign; }
@@ -169,7 +133,7 @@ namespace MetroFramework.Controls
 
         private MetroTileTextSize tileTextFontSize = MetroTileTextSize.Medium;
         [DefaultValue(MetroTileTextSize.Medium)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroTileTextSize TileTextFontSize
         {
             get { return tileTextFontSize; }
@@ -178,7 +142,7 @@ namespace MetroFramework.Controls
 
         private MetroTileTextWeight tileTextFontWeight = MetroTileTextWeight.Light;
         [DefaultValue(MetroTileTextWeight.Light)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroTileTextWeight TileTextFontWeight
         {
             get { return tileTextFontWeight; }

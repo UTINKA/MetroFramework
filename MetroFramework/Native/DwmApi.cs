@@ -222,9 +222,9 @@ namespace MetroFramework.Native
         [DllImport("dwmapi.dll")]
         public static extern int DwmModifyPreviousDxFrameDuration(IntPtr hwnd, int cRefreshes, int fRelative);
         [DllImport("dwmapi.dll")]
-        public static extern int DwmQueryThumbnailSourceSize(IntPtr hThumbnail, ref SIZE pSize);
+        public static extern int DwmQueryThumbnailSourceSize(IntPtr hThumbnail, ref Size pSize);
         [DllImport("dwmapi.dll")]
-        public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, ref SIZE pMinimizedSize, ref IntPtr phThumbnailId);
+        public static extern int DwmRegisterThumbnail(IntPtr hwndDestination, IntPtr hwndSource, ref Size pMinimizedSize, ref IntPtr phThumbnailId);
         [DllImport("dwmapi.dll")]
         public static extern int DwmSetDxFrameDuration(IntPtr hwnd, int cRefreshes);
         [DllImport("dwmapi.dll")]

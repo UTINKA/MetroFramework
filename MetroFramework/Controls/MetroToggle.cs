@@ -35,47 +35,8 @@ using MetroFramework.Localization;
 namespace MetroFramework.Controls
 {
     [ToolboxBitmap(typeof(CheckBox))]
-    public class MetroToggle : CheckBox, IMetroControl
+    public class MetroToggle : MetroCheckBoxBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
@@ -83,7 +44,7 @@ namespace MetroFramework.Controls
 
         private bool useStyleColors = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool UseStyleColors
         {
             get { return useStyleColors; }
@@ -92,7 +53,7 @@ namespace MetroFramework.Controls
 
         private MetroLinkSize metroLinkSize = MetroLinkSize.Small;
         [DefaultValue(MetroLinkSize.Small)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLinkSize FontSize
         {
             get { return metroLinkSize; }
@@ -101,7 +62,7 @@ namespace MetroFramework.Controls
 
         private MetroLinkWeight metroLinkWeight = MetroLinkWeight.Regular;
         [DefaultValue(MetroLinkWeight.Regular)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLinkWeight FontWeight
         {
             get { return metroLinkWeight; }
@@ -110,7 +71,7 @@ namespace MetroFramework.Controls
 
         private bool displayStatus = true;
         [DefaultValue(true)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool DisplayStatus
         {
             get { return displayStatus; }
@@ -159,7 +120,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }

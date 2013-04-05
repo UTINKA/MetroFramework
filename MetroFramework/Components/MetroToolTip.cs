@@ -37,28 +37,29 @@ namespace MetroFramework.Components
     {
         #region Interface
 
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
+        private MetroColorStyle metroStyle = MetroDefaults.Style;
+        [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
             get
             {
-                if (StyleManager != null)
-                    return StyleManager.Style;
+                if (InternalStyleManager != null)
+                    return InternalStyleManager.Style;
 
                 return metroStyle;
             }
             set { metroStyle = value; }
         }
 
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
+        private MetroThemeStyle metroTheme = MetroDefaults.Theme;
+        [DefaultValue(MetroDefaults.Theme)]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
             get
             {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
+                if (InternalStyleManager != null)
+                    return InternalStyleManager.Theme;
 
                 return metroTheme;
             }
@@ -67,7 +68,7 @@ namespace MetroFramework.Components
 
         private MetroStyleManager metroStyleManager = null;
         [Browsable(false)]
-        public MetroStyleManager StyleManager
+        public MetroStyleManager InternalStyleManager
         {
             get { return metroStyleManager; }
             set { metroStyleManager = value; }
@@ -160,18 +161,8 @@ namespace MetroFramework.Components
 
         private void MetroToolTip_Popup(object sender, PopupEventArgs e)
         {
-            if (e.AssociatedWindow is IMetroForm)
-            {
-                Style = ((IMetroForm)e.AssociatedWindow).Style;
-                Theme = ((IMetroForm)e.AssociatedWindow).Theme;
-                StyleManager = ((IMetroForm)e.AssociatedWindow).StyleManager;
-            }
-            else if (e.AssociatedControl is IMetroControl)
-            {
-                Style = ((IMetroControl)e.AssociatedControl).Style;
-                Theme = ((IMetroControl)e.AssociatedControl).Theme;
-                StyleManager = ((IMetroControl)e.AssociatedControl).StyleManager;
-            }
+            IMetroStyledComponent styledWindow = e.AssociatedWindow as IMetroStyledComponent;
+            if( styledWindow != null ) InternalStyleManager = styledWindow.InternalStyleManager;
 
             e.ToolTipSize = new Size(e.ToolTipSize.Width + 24, e.ToolTipSize.Height + 9);
         }

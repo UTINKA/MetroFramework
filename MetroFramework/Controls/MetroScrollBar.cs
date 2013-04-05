@@ -30,6 +30,8 @@ using MetroFramework.Components;
 using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 using MetroFramework.Native;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace MetroFramework.Controls
 {
@@ -42,47 +44,8 @@ namespace MetroFramework.Controls
     [Designer("MetroFramework.Design.MetroScrollBarDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [DefaultEvent("Scroll")]
     [DefaultProperty("Value")]
-    public class MetroScrollBar : Control, IMetroControl
+    public class MetroScrollBar : MetroControlBase, IMetroControl
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Events
 
@@ -169,14 +132,14 @@ namespace MetroFramework.Controls
 
         private bool useBarColor = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool UseBarColor
         {
             get { return useBarColor; }
             set { useBarColor = value; }
         }
 
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public int ScrollbarSize
         {
             get { return Orientation == MetroScrollOrientation.Vertical ? Width : Height; }
@@ -191,7 +154,7 @@ namespace MetroFramework.Controls
 
         private bool highlightOnWheel = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool HighlightOnWheel
         {
             get { return highlightOnWheel; }

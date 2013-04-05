@@ -10,6 +10,7 @@ namespace MetroFramework.Native
 
     [DebuggerDisplay("({Width},{Height})")]
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Use System.Drawing.Point")]
     public struct SIZE
     {
         public int Width;
@@ -19,7 +20,7 @@ namespace MetroFramework.Native
 
         public SIZE(int width, int height)
         {
-            Width = width; 
+            Width = width;
             Height = height;
         }
 

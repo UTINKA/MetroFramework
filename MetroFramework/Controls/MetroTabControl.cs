@@ -35,6 +35,8 @@ using MetroFramework.Components;
 using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 using MetroFramework.Native;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace MetroFramework.Controls
 {
@@ -53,47 +55,8 @@ namespace MetroFramework.Controls
 
     [Designer("MetroFramework.Design.MetroTabControlDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(TabControl))]
-    public class MetroTabControl : TabControl, IMetroControl
+    public class MetroTabControl : MetroTabControlBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
@@ -104,7 +67,7 @@ namespace MetroFramework.Controls
  
         private bool useStyleColors = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool UseStyleColors
         {
             get { return useStyleColors; }
@@ -113,7 +76,7 @@ namespace MetroFramework.Controls
 
         private MetroTabControlSize metroLabelSize = MetroTabControlSize.Medium;
         [DefaultValue(MetroTabControlSize.Medium)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroTabControlSize FontSize
         {
             get { return metroLabelSize; }
@@ -122,7 +85,7 @@ namespace MetroFramework.Controls
 
         private MetroTabControlWeight metroLabelWeight = MetroTabControlWeight.Light;
         [DefaultValue(MetroTabControlWeight.Light)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroTabControlWeight FontWeight
         {
             get { return metroLabelWeight; }
@@ -131,7 +94,7 @@ namespace MetroFramework.Controls
 
         private ContentAlignment textAlign = ContentAlignment.MiddleLeft;
         [DefaultValue(ContentAlignment.MiddleLeft)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public ContentAlignment TextAlign
         {
             get
@@ -156,7 +119,7 @@ namespace MetroFramework.Controls
 
         private bool isMirrored;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public new bool IsMirrored
         {
             get
@@ -176,7 +139,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }

@@ -34,53 +34,14 @@ namespace MetroFramework.Controls
 {
     [Designer("MetroFramework.Design.MetroProgressBarDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(ProgressBar))]
-    public class MetroProgressBar : ProgressBar, IMetroControl
+    public class MetroProgressBar : MetroProgressBarBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public new MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
         private MetroProgressBarSize metroLabelSize = MetroProgressBarSize.Medium;
         [DefaultValue(MetroProgressBarSize.Medium)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroProgressBarSize FontSize
         {
             get { return metroLabelSize; }
@@ -89,7 +50,7 @@ namespace MetroFramework.Controls
 
         private MetroProgressBarWeight metroLabelWeight = MetroProgressBarWeight.Light;
         [DefaultValue(MetroProgressBarWeight.Light)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroProgressBarWeight FontWeight
         {
             get { return metroLabelWeight; }
@@ -98,7 +59,7 @@ namespace MetroFramework.Controls
 
         private ContentAlignment textAlign = ContentAlignment.MiddleRight;
         [DefaultValue(ContentAlignment.MiddleRight)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public ContentAlignment TextAlign
         {
             get { return textAlign; }
@@ -107,7 +68,7 @@ namespace MetroFramework.Controls
 
         private bool hideProgressText = true;
         [DefaultValue(true)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool HideProgressText
         {
             get { return hideProgressText; }
@@ -116,7 +77,7 @@ namespace MetroFramework.Controls
 
         private ProgressBarStyle progressBarStyle = ProgressBarStyle.Continuous;
         [DefaultValue(ProgressBarStyle.Continuous)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public ProgressBarStyle ProgressBarStyle
         {
             get { return progressBarStyle; }

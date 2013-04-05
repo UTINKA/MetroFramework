@@ -21,15 +21,15 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+using System;
 using MetroFramework.Components;
 
 namespace MetroFramework.Interfaces
 {
-    public interface IMetroComponent
+    public interface IMetroComponent : IDisposable // IMetroStyledComponent
     {
-        MetroColorStyle Style { get; set; }
-        MetroThemeStyle Theme { get; set; }
-
-        MetroStyleManager StyleManager { get; set; }
+        //MetroColorStyle Style { get; set; }
+        //MetroThemeStyle Theme { get; set; }
     }
 }

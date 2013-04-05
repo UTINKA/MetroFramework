@@ -55,7 +55,7 @@ namespace MetroFramework.Native
             private set { position = value; }
         }
 
-        public Point Location
+        public System.Drawing.Point Location
         {
             get
             {
@@ -63,7 +63,7 @@ namespace MetroFramework.Native
             }
         }
 
-        public Size Size
+        public System.Drawing.Size Size
         {
             get
             {

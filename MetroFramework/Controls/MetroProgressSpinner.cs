@@ -34,47 +34,8 @@ namespace MetroFramework.Controls
 {
     [Designer("MetroFramework.Design.MetroProgressSpinnerDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(ProgressBar))]
-    public class MetroProgressSpinner : Control, IMetroControl
+    public class MetroProgressSpinner : MetroControlBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
@@ -91,7 +52,7 @@ namespace MetroFramework.Controls
         }
 
         [DefaultValue(0)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public int Value
         {
             get { return progress; }
@@ -106,7 +67,7 @@ namespace MetroFramework.Controls
 
         private int minimum = 0;
         [DefaultValue(0)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public int Minimum
         {
             get { return minimum; }
@@ -125,7 +86,7 @@ namespace MetroFramework.Controls
 
         private int maximum = 100;
         [DefaultValue(0)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public int Maximum
         {
             get { return maximum; }
@@ -142,7 +103,7 @@ namespace MetroFramework.Controls
 
         private bool ensureVisible = true;
         [DefaultValue(true)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool EnsureVisible
         {
             get { return ensureVisible; }
@@ -175,7 +136,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }

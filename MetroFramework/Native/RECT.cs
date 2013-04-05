@@ -48,9 +48,9 @@ namespace MetroFramework.Native
             get { return (Bottom - Top); }
         }
 
-        public SIZE Size
+        public Size Size
         {
-            get { return new SIZE(Width, Height); }
+            get { return new Size(Width, Height); }
         }
 
         public int Width

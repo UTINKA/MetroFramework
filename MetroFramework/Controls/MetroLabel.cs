@@ -41,47 +41,8 @@ namespace MetroFramework.Controls
 
     [Designer("MetroFramework.Design.MetroLabelDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(Label))]
-    public class MetroLabel : Label, IMetroControl
+    public class MetroLabel : MetroLabelBase
     {
-        #region Interface
-
-        private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-        [Category("Metro Appearance")]
-        public MetroColorStyle Style
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
-        }
-
-        private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-        [Category("Metro Appearance")]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (StyleManager != null)
-                    return StyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager StyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
 
@@ -89,7 +50,7 @@ namespace MetroFramework.Controls
 
         private bool useStyleColors = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool UseStyleColors
         {
             get { return useStyleColors; }
@@ -98,7 +59,7 @@ namespace MetroFramework.Controls
 
         private MetroLabelSize metroLabelSize = MetroLabelSize.Medium;
         [DefaultValue(MetroLabelSize.Medium)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLabelSize FontSize
         {
             get { return metroLabelSize; }
@@ -107,7 +68,7 @@ namespace MetroFramework.Controls
 
         private MetroLabelWeight metroLabelWeight = MetroLabelWeight.Light;
         [DefaultValue(MetroLabelWeight.Light)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLabelWeight FontWeight
         {
             get { return metroLabelWeight; }
@@ -116,7 +77,7 @@ namespace MetroFramework.Controls
 
         private MetroLabelMode labelMode = MetroLabelMode.Default;
         [DefaultValue(MetroLabelMode.Default)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public MetroLabelMode LabelMode
         {
             get { return labelMode; }
@@ -125,7 +86,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomBackground = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomBackground
         {
             get { return useCustomBackground; }
@@ -134,7 +95,7 @@ namespace MetroFramework.Controls
 
         private bool useCustomForeColor = false;
         [DefaultValue(false)]
-        [Category("Metro Appearance")]
+        [Category(MetroDefaults.CatAppearance)]
         public bool CustomForeColor
         {
             get { return useCustomForeColor; }

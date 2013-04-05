@@ -10,6 +10,7 @@ namespace MetroFramework.Native
 
     [DebuggerDisplay("({X},{Y})")]
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Use System.Drawing.Point")]
     public struct POINT
     {
         public int X;
@@ -19,7 +20,7 @@ namespace MetroFramework.Native
 
         public POINT(int x, int y)
         {
-            X = x; 
+            X = x;
             Y = y;
         }
 
