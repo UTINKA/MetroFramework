@@ -31,7 +31,6 @@ using MetroFramework.Components;
 using MetroFramework.Interfaces;
 using MetroFramework.Drawing;
 using MetroFramework.Native;
-using Point = System.Drawing.Point;
 
 namespace MetroFramework.Controls
 {

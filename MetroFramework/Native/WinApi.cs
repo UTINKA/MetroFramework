@@ -56,7 +56,7 @@ namespace MetroFramework.Native
         [StructLayout(LayoutKind.Sequential)]
         public struct TCHITTESTINFO
         {
-            public System.Drawing.Point pt;
+            public Point pt;
             public uint flags;
         }
 

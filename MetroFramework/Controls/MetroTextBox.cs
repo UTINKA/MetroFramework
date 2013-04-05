@@ -172,6 +172,18 @@ namespace MetroFramework.Controls
             set { baseTextBox.TabStop = value; }
         }
 
+        public int MaxLength
+        {
+            get { return baseTextBox.MaxLength; }
+            set { baseTextBox.MaxLength = value; }
+        }
+
+        public ScrollBars ScrollBars
+        {
+            get { return baseTextBox.ScrollBars; }
+            set { baseTextBox.ScrollBars = value; }
+        }
+
         #endregion
 
         #region Constructor
@@ -422,6 +434,7 @@ namespace MetroFramework.Controls
             {
                 TextFormatFlags flags = TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis;
                 Rectangle clientRectangle = ClientRectangle;
+
                 switch (TextAlign)
                 {
                     case HorizontalAlignment.Left:

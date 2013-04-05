@@ -30,8 +30,6 @@ using MetroFramework.Components;
 using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 using MetroFramework.Native;
-using Point = System.Drawing.Point;
-using Size = System.Drawing.Size;
 
 namespace MetroFramework.Controls
 {

@@ -217,10 +217,10 @@ namespace MetroFramework.Forms
                 {
                     e.Graphics.DrawLines(pen, new[]
                         {
-                            new System.Drawing.Point(0, borderWidth),
-                            new System.Drawing.Point(0, Height - 1),
-                            new System.Drawing.Point(Width - 1, Height - 1),
-                            new System.Drawing.Point(Width - 1, borderWidth)
+                            new Point(0, borderWidth),
+                            new Point(0, Height - 1),
+                            new Point(Width - 1, Height - 1),
+                            new Point(Width - 1, borderWidth)
                         });
                 }
             }
@@ -245,14 +245,14 @@ namespace MetroFramework.Forms
             {
                 using (SolidBrush b = new SolidBrush(MetroPaint.ForeColor.Button.Disabled(Theme)))
                 {
-                    System.Drawing.Size resizeHandleSize = new System.Drawing.Size(2, 2);
+                    Size resizeHandleSize = new Size(2, 2);
                     e.Graphics.FillRectangles(b, new Rectangle[] {
-                        new Rectangle(new System.Drawing.Point(ClientRectangle.Width-6,ClientRectangle.Height-6), resizeHandleSize),
-                        new Rectangle(new System.Drawing.Point(ClientRectangle.Width-10,ClientRectangle.Height-10), resizeHandleSize),
-                        new Rectangle(new System.Drawing.Point(ClientRectangle.Width-10,ClientRectangle.Height-6), resizeHandleSize),
-                        new Rectangle(new System.Drawing.Point(ClientRectangle.Width-6,ClientRectangle.Height-10), resizeHandleSize),
-                        new Rectangle(new System.Drawing.Point(ClientRectangle.Width-14,ClientRectangle.Height-6), resizeHandleSize),
-                        new Rectangle(new System.Drawing.Point(ClientRectangle.Width-6,ClientRectangle.Height-14), resizeHandleSize)
+                        new Rectangle(new Point(ClientRectangle.Width-6,ClientRectangle.Height-6), resizeHandleSize),
+                        new Rectangle(new Point(ClientRectangle.Width-10,ClientRectangle.Height-10), resizeHandleSize),
+                        new Rectangle(new Point(ClientRectangle.Width-10,ClientRectangle.Height-6), resizeHandleSize),
+                        new Rectangle(new Point(ClientRectangle.Width-6,ClientRectangle.Height-10), resizeHandleSize),
+                        new Rectangle(new Point(ClientRectangle.Width-14,ClientRectangle.Height-6), resizeHandleSize),
+                        new Rectangle(new Point(ClientRectangle.Width-6,ClientRectangle.Height-14), resizeHandleSize)
                     });
                 }
             }
@@ -450,7 +450,7 @@ namespace MetroFramework.Forms
         {
             //Point vPoint = PointToClient(new Point((int)lparam & 0xFFFF, (int)lparam >> 16 & 0xFFFF));
             //Point vPoint = PointToClient(new Point((Int16)lparam, (Int16)((int)lparam >> 16)));
-            System.Drawing.Point vPoint = new System.Drawing.Point((Int16)lparam, (Int16)((int)lparam >> 16));
+            Point vPoint = new Point((Int16)lparam, (Int16)((int)lparam >> 16));
             int vPadding = Math.Max(Padding.Right, Padding.Bottom);
 
             if (Resizable)
@@ -527,7 +527,7 @@ namespace MetroFramework.Forms
             }
 
             newButton.Tag = button;
-            newButton.Size = new System.Drawing.Size(25, 20);
+            newButton.Size = new Size(25, 20);
             newButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             newButton.Click += WindowButton_Click;
             Controls.Add(newButton);
@@ -571,7 +571,7 @@ namespace MetroFramework.Forms
 
             Dictionary<int, WindowButtons> priorityOrder = new Dictionary<int, WindowButtons>(3) { {0, WindowButtons.Close}, {1, WindowButtons.Maximize}, {2, WindowButtons.Minimize} };
 
-            System.Drawing.Point firstButtonLocation = new System.Drawing.Point(ClientRectangle.Width - borderWidth - 25, borderWidth);
+            Point firstButtonLocation = new Point(ClientRectangle.Width - borderWidth - 25, borderWidth);
             int lastDrawedButtonPosition = firstButtonLocation.X - 25;
 
             MetroFormButton firstButton = null;
@@ -598,7 +598,7 @@ namespace MetroFramework.Forms
 
                     if (firstButton == null || !buttonExists) continue;
 
-                    windowButtonList[button.Value].Location = new System.Drawing.Point(lastDrawedButtonPosition, borderWidth);
+                    windowButtonList[button.Value].Location = new Point(lastDrawedButtonPosition, borderWidth);
                     lastDrawedButtonPosition = lastDrawedButtonPosition - 25;
                 }
             }
@@ -1243,7 +1243,7 @@ namespace MetroFramework.Forms
 
         private Rectangle MeasureText(Graphics g, Rectangle clientRectangle, Font font, string text, TextFormatFlags flags)
         {
-            var proposedSize = new System.Drawing.Size(int.MaxValue, int.MinValue);
+            var proposedSize = new Size(int.MaxValue, int.MinValue);
             var actualSize = TextRenderer.MeasureText(g, text, font, proposedSize, flags);
             return new Rectangle(clientRectangle.X, clientRectangle.Y, actualSize.Width, actualSize.Height);
         }

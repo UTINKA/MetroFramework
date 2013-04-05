@@ -230,43 +230,43 @@ namespace MetroFramework.Controls
                     switch (tileImageAlign)
                     {
                         case ContentAlignment.BottomLeft:
-                            rect = new Rectangle(new Point(0, Height - TileImage.Height), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(0, Height - TileImage.Height), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.BottomCenter:
-                            rect = new Rectangle(new Point(Width / 2 - TileImage.Width / 2, Height - TileImage.Height), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(Width / 2 - TileImage.Width / 2, Height - TileImage.Height), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.BottomRight:
-                            rect = new Rectangle(new Point(Width - TileImage.Width, Height - TileImage.Height), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(Width - TileImage.Width, Height - TileImage.Height), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.MiddleLeft:
-                            rect = new Rectangle(new Point(0, Height / 2 - TileImage.Height / 2), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(0, Height / 2 - TileImage.Height / 2), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.MiddleCenter:
-                            rect = new Rectangle(new Point(Width / 2 - TileImage.Width / 2, Height / 2 - TileImage.Height / 2), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(Width / 2 - TileImage.Width / 2, Height / 2 - TileImage.Height / 2), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.MiddleRight:
-                            rect = new Rectangle(new Point(Width - TileImage.Width, Height / 2 - TileImage.Height / 2), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(Width - TileImage.Width, Height / 2 - TileImage.Height / 2), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.TopLeft:
-                            rect = new Rectangle(new Point(0, 0), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(0, 0), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.TopCenter:
-                            rect = new Rectangle(new Point(Width / 2 - TileImage.Width / 2, 0), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(Width / 2 - TileImage.Width / 2, 0), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         case ContentAlignment.TopRight:
-                            rect = new Rectangle(new Point(Width - TileImage.Width, 0), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(Width - TileImage.Width, 0), new Size(TileImage.Width, TileImage.Height));
                             break;
 
                         default:
-                            rect = new Rectangle(new Point(0, 0), new System.Drawing.Size(TileImage.Width, TileImage.Height));
+                            rect = new Rectangle(new Point(0, 0), new Size(TileImage.Width, TileImage.Height));
                             break;
                     }
 
