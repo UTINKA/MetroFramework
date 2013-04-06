@@ -55,6 +55,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(MetroScrollBar.SCROLLBAR_DEFAULT_SIZE)]
         public int HorizontalScrollbarSize
         {
             get { return horizontalScrollbar.ScrollbarSize; }
@@ -62,6 +63,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(false)]
         public bool HorizontalScrollbarBarColor
         {
             get { return horizontalScrollbar.UseBarColor; }
@@ -69,6 +71,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(false)]
         public bool HorizontalScrollbarHighlightOnWheel
         {
             get { return horizontalScrollbar.HighlightOnWheel; }
@@ -85,6 +88,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(MetroScrollBar.SCROLLBAR_DEFAULT_SIZE)]
         public int VerticalScrollbarSize
         {
             get { return verticalScrollbar.ScrollbarSize; }
@@ -92,6 +96,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(false)]
         public bool VerticalScrollbarBarColor
         {
             get { return verticalScrollbar.UseBarColor; }
@@ -99,6 +104,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(false)]
         public bool VerticalScrollbarHighlightOnWheel
         {
             get { return verticalScrollbar.HighlightOnWheel; }

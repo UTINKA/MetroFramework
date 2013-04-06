@@ -132,6 +132,7 @@ namespace MetroFramework.Controls
         }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string SelectedText
         {
             get { return baseTextBox.SelectedText;  }
@@ -145,6 +146,7 @@ namespace MetroFramework.Controls
             set { baseTextBox.ReadOnly = value; }
         }
 
+        [DefaultValue('\0')]
         public char PasswordChar
         {
             get { return baseTextBox.PasswordChar; }
@@ -172,12 +174,14 @@ namespace MetroFramework.Controls
             set { baseTextBox.TabStop = value; }
         }
 
+        [DefaultValue(32767)]
         public int MaxLength
         {
             get { return baseTextBox.MaxLength; }
             set { baseTextBox.MaxLength = value; }
         }
 
+        [DefaultValue(ScrollBars.None)]
         public ScrollBars ScrollBars
         {
             get { return baseTextBox.ScrollBars; }

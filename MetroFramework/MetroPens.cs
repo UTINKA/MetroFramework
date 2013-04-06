@@ -21,135 +21,56 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 using System.Drawing;
 using System.Collections.Generic;
 
 namespace MetroFramework
 {
-    public sealed class MetroPens
+    public static class MetroPens
     {
-        private static Dictionary<string, Pen> metroPens;
+        private static readonly Dictionary<string, Pen> metroPens = new Dictionary<string, Pen>();
+
         private static Pen GetSavePen(string key, Color color)
         {
-            if (metroPens == null)
-                metroPens = new Dictionary<string, Pen>();
-
-            if (!metroPens.ContainsKey(key))
-                metroPens.Add(key, new Pen(color, 1f));
-
-            return metroPens[key].Clone() as Pen;
-        }
-
-        public static Pen Black
-        {
-            get
+            lock (metroPens)
             {
-                return GetSavePen("Black", MetroColors.Black);
+                Pen brush;
+                if (!metroPens.TryGetValue(key, out brush))
+                {
+                    brush = new Pen(color, 1f);
+                    metroPens.Add(key, brush);
+                }
+                return (Pen)brush.Clone();
             }
         }
 
-        public static Pen White
-        {
-            get
-            {
-                return GetSavePen("White", MetroColors.White);
-            }
-        }
+        public static Pen Black { get { return GetSavePen("Black", MetroColors.Black); } }
 
-        public static Pen Silver
-        {
-            get
-            {
-                return GetSavePen("Silver", MetroColors.Silver);
-            }
-        }
+        public static Pen White { get { return GetSavePen("White", MetroColors.White); } }
 
-        public static Pen Blue
-        {
-            get
-            {
-                return GetSavePen("Blue", MetroColors.Blue);
-            }
-        }
+        public static Pen Silver { get { return GetSavePen("Silver", MetroColors.Silver); } }
 
-        public static Pen Green
-        {
-            get
-            {
-                return GetSavePen("Green", MetroColors.Green);
-            }
-        }
+        public static Pen Blue { get { return GetSavePen("Blue", MetroColors.Blue); } }
 
-        public static Pen Lime
-        {
-            get
-            {
-                return GetSavePen("Lime", MetroColors.Lime);
-            }
-        }
+        public static Pen Green { get { return GetSavePen("Green", MetroColors.Green); } }
 
-        public static Pen Teal
-        {
-            get
-            {
-                return GetSavePen("Teal", MetroColors.Teal);
-            }
-        }
+        public static Pen Lime { get { return GetSavePen("Lime", MetroColors.Lime); } }
 
-        public static Pen Orange
-        {
-            get
-            {
-                return GetSavePen("Orange", MetroColors.Orange);
-            }
-        }
+        public static Pen Teal { get { return GetSavePen("Teal", MetroColors.Teal); } }
 
-        public static Pen Brown
-        {
-            get
-            {
-                return GetSavePen("Brown", MetroColors.Brown);
-            }
-        }
+        public static Pen Orange { get { return GetSavePen("Orange", MetroColors.Orange); } }
 
-        public static Pen Pink
-        {
-            get
-            {
-                return GetSavePen("Pink", MetroColors.Pink);
-            }
-        }
+        public static Pen Brown { get { return GetSavePen("Brown", MetroColors.Brown); } }
 
-        public static Pen Magenta
-        {
-            get
-            {
-                return GetSavePen("Magenta", MetroColors.Magenta);
-            }
-        }
+        public static Pen Pink { get { return GetSavePen("Pink", MetroColors.Pink); } }
 
-        public static Pen Purple
-        {
-            get
-            {
-                return GetSavePen("Purple", MetroColors.Purple);
-            }
-        }
+        public static Pen Magenta { get { return GetSavePen("Magenta", MetroColors.Magenta); } }
 
-        public static Pen Red
-        {
-            get
-            {
-                return GetSavePen("Red", MetroColors.Red);
-            }
-        }
+        public static Pen Purple { get { return GetSavePen("Purple", MetroColors.Purple); } }
 
-        public static Pen Yellow
-        {
-            get
-            {
-                return GetSavePen("Yellow", MetroColors.Yellow);
-            }
-        }
+        public static Pen Red { get { return GetSavePen("Red", MetroColors.Red); } }
+
+        public static Pen Yellow { get { return GetSavePen("Yellow", MetroColors.Yellow); } }
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="MetroProgressBarDesigner.cs" />
     <Compile Include="MetroProgressSpinnerDesigner.cs" />
     <Compile Include="MetroScrollBarDesigner.cs" />
+    <Compile Include="MetroStyleManagerDesigner.cs" />
     <Compile Include="MetroTabControlDesigner.cs" />
     <Compile Include="MetroTabPageCollectionEditor.cs" />
     <Compile Include="MetroTabPageDesigner.cs" />

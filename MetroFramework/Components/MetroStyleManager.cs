@@ -62,10 +62,14 @@ namespace MetroFramework.Components
     ///     </item>
     ///     </list>
     /// </remarks>
+    [Designer("MetroFramework.Design.MetroStyleManagerDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     public sealed class MetroStyleManager : Component, ISupportInitialize, IMetroComponent, IMetroStyledComponent
     {
 
         public static readonly MetroStyleManager Default = new MetroStyleManager();
+
+        // The name of the Style property as it is used throughout MetroFramework
+        internal const string STYLE_PROPERTY_NAME = "Style";
 
         private MetroColorStyle _metroStyle = MetroColorStyle.Default;
         [DefaultValue(MetroColorStyle.Default)]
@@ -86,6 +90,9 @@ namespace MetroFramework.Components
                 if(changed) OnMetroStyleChanged(this, new EventArgs());
             }
         }
+
+        // The name of the Theme property as it is used throughout MetroFramework
+        internal const string THEME_PROPERTY_NAME = "Theme";
 
         private MetroThemeStyle _metroTheme = MetroThemeStyle.Default;
         [DefaultValue(MetroThemeStyle.Default)]
@@ -175,6 +182,14 @@ namespace MetroFramework.Components
             }
         }
 
+        //// Used by the designer to reset child controls in a container
+        //internal void ResetDefaults()
+        //{
+        //    if( _styleManager == null) return; // the singleton instance
+        //    _metroTheme = MetroThemeStyle.Default;
+        //    _metroStyle = MetroColorStyle.Default;
+        //}
+
         #region ISupportInitialize
 
         /// <summary>
@@ -201,6 +216,7 @@ namespace MetroFramework.Components
         /// </summary>
         private IMetroContainerControl _owner;
 
+        [ImmutableObject(true)]
         public IMetroContainerControl Owner
         {
             get { return _owner; }

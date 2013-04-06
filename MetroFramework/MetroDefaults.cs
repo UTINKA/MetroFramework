@@ -3,7 +3,6 @@
 MetroFramework - Modern UI for WinForms
 
 Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
-Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in the 
@@ -26,7 +25,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MetroFramework
 {
@@ -41,6 +39,8 @@ namespace MetroFramework
         // Categories
 
         public const string CatAppearance = "Metro Appearance";
+
+        public const string CatBehavior = "Metro Behavior";
 
 
     }

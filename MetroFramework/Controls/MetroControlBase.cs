@@ -112,6 +112,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -120,6 +121,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -204,6 +206,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -212,6 +215,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -296,6 +300,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -304,6 +309,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -388,6 +394,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -396,6 +403,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -480,6 +488,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -488,6 +497,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -584,6 +594,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -592,6 +603,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -676,6 +688,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -684,6 +697,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -768,6 +782,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -776,6 +791,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -860,6 +876,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -868,6 +885,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -952,6 +970,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -960,6 +979,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -1044,6 +1064,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -1052,6 +1073,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -1136,6 +1158,7 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
+		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -1144,6 +1167,7 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
+		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {

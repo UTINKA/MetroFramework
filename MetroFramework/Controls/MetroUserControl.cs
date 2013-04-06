@@ -32,6 +32,7 @@ using MetroFramework.Drawing;
 
 namespace MetroFramework.Controls
 {
+    //[Designer("MetroFramework.Design.MetroContainerControlDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     public class MetroUserControl : MetroUserControlBase
     {
         #region Fields

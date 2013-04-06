@@ -44,7 +44,7 @@ namespace MetroFramework.Controls
         private float angle = 270;
 
         [DefaultValue(true)]
-        [Category("Metro Behaviour")]
+        [Category(MetroDefaults.CatBehavior)]
         public bool Spinning
         {
             get { return timer.Enabled; }
@@ -112,7 +112,7 @@ namespace MetroFramework.Controls
 
         private float speed;
         [DefaultValue(1f)]
-        [Category("Metro Behaviour")]
+        [Category(MetroDefaults.CatBehavior)]
         public float Speed
         {
             get { return speed; }
@@ -127,7 +127,7 @@ namespace MetroFramework.Controls
 
         private bool backwards;
         [DefaultValue(false)]
-        [Category("Metro Behaviour")]
+        [Category(MetroDefaults.CatBehavior)]
         public bool Backwards
         {
             get { return backwards; }

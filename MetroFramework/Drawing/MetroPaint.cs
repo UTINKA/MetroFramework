@@ -38,10 +38,12 @@ namespace MetroFramework.Drawing
         {
             public static Color Form(MetroThemeStyle theme)
             {
-                if (theme == MetroThemeStyle.Dark)
-                    return Color.FromArgb(68, 68, 68);
+                // these are co-ordinated with the flat shadow
 
-                return Color.FromArgb(204, 204, 204);
+                if (theme == MetroThemeStyle.Dark)
+                    return Color.FromArgb(153, 153, 153);
+
+                return Color.FromArgb(153, 153, 153);
             }
 
             public static class Button

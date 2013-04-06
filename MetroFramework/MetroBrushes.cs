@@ -21,6 +21,7 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 using System.Drawing;
 using System.Collections.Generic;
 
@@ -28,128 +29,48 @@ namespace MetroFramework
 {
     public sealed class MetroBrushes
     {
-        private static Dictionary<string, SolidBrush> metroBrushes;
+        private static readonly Dictionary<string, SolidBrush> metroBrushes = new Dictionary<string, SolidBrush>();
+
         private static SolidBrush GetSaveBrush(string key, Color color)
         {
-            if (metroBrushes == null)
-                metroBrushes = new Dictionary<string, SolidBrush>();
-
-            if (!metroBrushes.ContainsKey(key))
-                metroBrushes.Add(key, new SolidBrush(color));
-
-            return metroBrushes[key].Clone() as SolidBrush;
-        }
-
-        public static SolidBrush Black
-        {
-            get
+            lock (metroBrushes)
             {
-                return GetSaveBrush("Black", MetroColors.Black);
+                SolidBrush brush;
+                if (!metroBrushes.TryGetValue(key, out brush))
+                {
+                    brush = new SolidBrush(color);
+                    metroBrushes.Add(key, brush);
+                }
+                return (SolidBrush)brush.Clone();
             }
         }
 
-        public static SolidBrush White
-        {
-            get
-            {
-                return GetSaveBrush("White", MetroColors.White);
-            }
-        }
+        public static SolidBrush Black { get { return GetSaveBrush("Black", MetroColors.Black); } }
 
-        public static SolidBrush Silver
-        {
-            get
-            {
-                return GetSaveBrush("Silver", MetroColors.Silver);
-            }
-        }
+        public static SolidBrush White { get { return GetSaveBrush("White", MetroColors.White); } }
 
-        public static SolidBrush Blue
-        {
-            get
-            {
-                return GetSaveBrush("Blue", MetroColors.Blue);
-            }
-        }
+        public static SolidBrush Silver { get { return GetSaveBrush("Silver", MetroColors.Silver); } }
 
-        public static SolidBrush Green
-        {
-            get
-            {
-                return GetSaveBrush("Green", MetroColors.Green);
-            }
-        }
+        public static SolidBrush Blue { get { return GetSaveBrush("Blue", MetroColors.Blue); } }
 
-        public static SolidBrush Lime
-        {
-            get
-            {
-                return GetSaveBrush("Lime", MetroColors.Lime);
-            }
-        }
+        public static SolidBrush Green { get { return GetSaveBrush("Green", MetroColors.Green); } }
 
-        public static SolidBrush Teal
-        {
-            get
-            {
-                return GetSaveBrush("Teal", MetroColors.Teal);
-            }
-        }
+        public static SolidBrush Lime { get { return GetSaveBrush("Lime", MetroColors.Lime); } }
 
-        public static SolidBrush Orange
-        {
-            get
-            {
-                return GetSaveBrush("Orange", MetroColors.Orange);
-            }
-        }
+        public static SolidBrush Teal { get { return GetSaveBrush("Teal", MetroColors.Teal); } }
 
-        public static SolidBrush Brown
-        {
-            get
-            {
-                return GetSaveBrush("Brown", MetroColors.Brown);
-            }
-        }
+        public static SolidBrush Orange { get { return GetSaveBrush("Orange", MetroColors.Orange); } }
 
-        public static SolidBrush Pink
-        {
-            get
-            {
-                return GetSaveBrush("Pink", MetroColors.Pink);
-            }
-        }
+        public static SolidBrush Brown { get { return GetSaveBrush("Brown", MetroColors.Brown); } }
 
-        public static SolidBrush Magenta
-        {
-            get
-            {
-                return GetSaveBrush("Magenta", MetroColors.Magenta);
-            }
-        }
+        public static SolidBrush Pink { get { return GetSaveBrush("Pink", MetroColors.Pink); } }
 
-        public static SolidBrush Purple
-        {
-            get
-            {
-                return GetSaveBrush("Purple", MetroColors.Purple);
-            }
-        }
+        public static SolidBrush Magenta { get { return GetSaveBrush("Magenta", MetroColors.Magenta); } }
 
-        public static SolidBrush Red
-        {
-            get
-            {
-                return GetSaveBrush("Red", MetroColors.Red);
-            }
-        }
+        public static SolidBrush Purple { get { return GetSaveBrush("Purple", MetroColors.Purple); } }
 
-        public static SolidBrush Yellow
-        {
-            get
-            {
-                return GetSaveBrush("Yellow", MetroColors.Yellow);
-            }
-        }
+        public static SolidBrush Red { get { return GetSaveBrush("Red", MetroColors.Red); } }
+
+        public static SolidBrush Yellow { get { return GetSaveBrush("Yellow", MetroColors.Yellow); } }
     }
 }

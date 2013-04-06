@@ -1,12 +1,5 @@
-﻿<#@ template debug="true" hostSpecific="true" #>
-<#@ output extension=".cs" #>
-<#@ Assembly Name="System.Core" #>
-<#@ Assembly Name="System.Windows.Forms" #>
-<#@ import namespace="System" #>
-<#@ import namespace="System.Diagnostics" #>
-<#@ import namespace="System.Collections" #>
-<#@ import namespace="System.Collections.Generic" #> 
-<#@ import namespace="System.Windows.Forms" #> 
+﻿ 
+ 
 /**************************************************************************************
 
                         GENERATED FILE - DO NOT EDIT
@@ -44,53 +37,19 @@ using System.Windows.Forms;
 using MetroFramework.Components;
 using MetroFramework.Interfaces;
 
-namespace MetroFramework.Controls
+namespace MetroFramework.Components
 {
 
-<#
-
-	// I wish we had mix-ins...
-
-	string[] controls = new string[] 
-		{ 
-			"Control", 
-			"Button", 
-			"CheckBox", 
-			"ComboBox", 
-			"Form",
-			"Label", 
-			"Panel", 
-			"ProgressBar", 
-			"RadioButton",
-			"TabControl",
-			"TabPage",
-			"UserControl"
-		};
-
-	Type ti = typeof(IContainerControl);
-	Debug.Assert(ti!=null);
-
-	foreach( var control in controls )
-    {
-
-		Type tc = Type.GetType("System.Windows.Forms."+control+", " + ti.Assembly.FullName);
-		Debug.Assert( tc != null );
-		bool isContainer = ti.IsAssignableFrom(tc);
-
-		string additionalInterfaces = isContainer ? "IMetroContainerControl, " : string.Empty;
-
-#>
 
 	[EditorBrowsable(EditorBrowsableState.Advanced)]
-    public abstract class Metro<#=control#>Base : <#=control#>, <#=additionalInterfaces#>
-		IMetroControl, IMetroStyledComponent
+    public abstract class MetroComponentBase : Component, IMetroComponent, IMetroStyledComponent
     {
 
 		#region Fields, Constructor & IDisposable
 
         private readonly MetroStyleManager _styleManager;
 
-	    protected Metro<#=control#>Base()
+	    protected MetroComponentBase()
         {
             _styleManager = new MetroStyleManager();
             _styleManager.MetroStyleChanged += OnMetroStyleChanged;
@@ -106,22 +65,6 @@ namespace MetroFramework.Controls
 
         #region Style Manager Interface
 
-        /*  NOTE: when copying this code, make sure that the class creates and disposes the style manager, e.g.
-          
-                public MyControl()
-                {
-                    _styleManager = new MetroStyleManager();
-                    _styleManager.MetroStyleChanged += OnMetroStyleChanged;
-                }
-                   
-                protected override void Dispose(bool disposing)
-                {
-                    if (disposing) _styleManager.Dispose();
-                    base.Dispose(disposing);
-                }
-         
-         */
-
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         MetroStyleManager IMetroStyledComponent.InternalStyleManager
         {
@@ -132,13 +75,7 @@ namespace MetroFramework.Controls
 
         // Event handler for our style manager's updates
         // NOTE: The event may have been triggered from a different thread.
-        private void OnMetroStyleChanged(object sender, EventArgs e)
-        {
-            if (InvokeRequired)
-                Invoke(new MethodInvoker(Invalidate));
-            else
-                Invalidate();
-        }
+		protected abstract void OnMetroStyleChanged(object sender, EventArgs e);
 
         // Override Site property to set the style manager into design mode, too.
         public override ISite Site
@@ -152,7 +89,6 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
-		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -161,7 +97,6 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
-		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
@@ -169,31 +104,78 @@ namespace MetroFramework.Controls
             set { _styleManager.Style = value; }
         }
 
-	<# 	if( isContainer )  { 	#>
+		#endregion
 
-	    /// <summary>
-        ///     A style manager controlling this container and all child controls.
-        /// </summary>
-        /// <remarks>
-        ///     To assign a Style Manager to a <see cref="Forms.MetroForm"/> or
-        ///     <see cref="Controls.MetroUserControl"/>, add a <see cref="Components.MetroStyleManager"/>
-        ///     component to the designer and assign the form or user control as Owner.
-        /// </remarks>
+    }
+
+
+	[EditorBrowsable(EditorBrowsableState.Advanced)]
+    public abstract class MetroToolTipBase : ToolTip, IMetroComponent, IMetroStyledComponent
+    {
+
+		#region Fields, Constructor & IDisposable
+
+        private readonly MetroStyleManager _styleManager;
+
+	    protected MetroToolTipBase()
+        {
+            _styleManager = new MetroStyleManager();
+            _styleManager.MetroStyleChanged += OnMetroStyleChanged;
+        }
+                   
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _styleManager.Dispose();
+            base.Dispose(disposing);
+        }
+
+		#endregion
+
+        #region Style Manager Interface
+
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MetroStyleManager StyleManager { get; set; }
+        MetroStyleManager IMetroStyledComponent.InternalStyleManager
+        {
+            get { return _styleManager; }
+            // NOTE: we don't replace our style manager, but instead assign the style manager a new manager
+            set { ((IMetroStyledComponent)_styleManager).InternalStyleManager = value; }
+        }
 
-	<#  } #>
+        // Event handler for our style manager's updates
+        // NOTE: The event may have been triggered from a different thread.
+		protected abstract void OnMetroStyleChanged(object sender, EventArgs e);
+
+        // Override Site property to set the style manager into design mode, too.
+        public override ISite Site
+        {
+            get { return base.Site; }
+            set { base.Site = _styleManager.Site = value; }
+        }
+
+        #endregion
+
+		#region Properties
+
+        [DefaultValue(MetroThemeStyle.Default)]
+        [Category(MetroDefaults.CatAppearance)]
+        public MetroThemeStyle Theme
+        {
+            get { return _styleManager.Theme; }
+            set { _styleManager.Theme = value; }
+        }
+
+		[DefaultValue(MetroColorStyle.Default)]
+        [Category(MetroDefaults.CatAppearance)]
+        public MetroColorStyle Style
+        {
+            get { return _styleManager.Style; }
+            set { _styleManager.Style = value; }
+        }
 
 		#endregion
 
     }
 
-<#
-    }
-#>
 
 }
  
-<#+
-  // Insert any template procedures here
-#>

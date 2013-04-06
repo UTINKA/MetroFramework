@@ -74,6 +74,12 @@
     <Compile Include="Animation\ExpandAnimation.cs" />
     <Compile Include="Animation\MoveAnimation.cs" />
     <Compile Include="Animation\TransitionType.cs" />
+    <Compile Include="Components\MetroComponentBase.cs">
+      <DependentUpon>MetroComponentBase.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Components\MetroStyleExtender.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -163,7 +169,6 @@
     <Compile Include="MetroFonts.cs" />
     <Compile Include="MetroPens.cs" />
     <Compile Include="MetroThemeStyle.cs" />
-    <Compile Include="Native\DwmApi.cs" />
     <Compile Include="Native\RECT.cs" />
     <Compile Include="Native\SubClass.cs" />
     <Compile Include="Native\Taskbar.cs" />
@@ -182,6 +187,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Components\MetroComponentBase.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MetroComponentBase.cs</LastGenOutput>
+    </None>
     <None Include="Controls\MetroControlBase.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MetroControlBase.cs</LastGenOutput>

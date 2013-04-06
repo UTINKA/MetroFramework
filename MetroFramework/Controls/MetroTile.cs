@@ -40,6 +40,7 @@ namespace MetroFramework.Controls
 
         private Control activeControl = null;
         [Browsable(false)]
+        [DefaultValue(null)]
         public Control ActiveControl
         {
             get { return activeControl; }

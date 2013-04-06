@@ -32,7 +32,7 @@ using MetroFramework.Components;
 
 namespace MetroFramework.Interfaces
 {
-    public interface IMetroContainerControl : IContainerControl, IMetroControl
+    public interface IMetroContainerControl : IContainerControl, IMetroStyledComponent, IMetroControl
     {
         /// <summary>
         ///     A style manager controlling this container and all child controls.

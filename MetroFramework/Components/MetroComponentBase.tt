@@ -44,46 +44,26 @@ using System.Windows.Forms;
 using MetroFramework.Components;
 using MetroFramework.Interfaces;
 
-namespace MetroFramework.Controls
+namespace MetroFramework.Components
 {
 
 <#
 
 	// I wish we had mix-ins...
 
-	string[] controls = new string[] 
+	string[] components = new string[] 
 		{ 
-			"Control", 
-			"Button", 
-			"CheckBox", 
-			"ComboBox", 
-			"Form",
-			"Label", 
-			"Panel", 
-			"ProgressBar", 
-			"RadioButton",
-			"TabControl",
-			"TabPage",
-			"UserControl"
+			"Component", 
+			"ToolTip"
 		};
 
-	Type ti = typeof(IContainerControl);
-	Debug.Assert(ti!=null);
-
-	foreach( var control in controls )
+	foreach( var control in components )
     {
-
-		Type tc = Type.GetType("System.Windows.Forms."+control+", " + ti.Assembly.FullName);
-		Debug.Assert( tc != null );
-		bool isContainer = ti.IsAssignableFrom(tc);
-
-		string additionalInterfaces = isContainer ? "IMetroContainerControl, " : string.Empty;
 
 #>
 
 	[EditorBrowsable(EditorBrowsableState.Advanced)]
-    public abstract class Metro<#=control#>Base : <#=control#>, <#=additionalInterfaces#>
-		IMetroControl, IMetroStyledComponent
+    public abstract class Metro<#=control#>Base : <#=control#>, IMetroComponent, IMetroStyledComponent
     {
 
 		#region Fields, Constructor & IDisposable
@@ -106,22 +86,6 @@ namespace MetroFramework.Controls
 
         #region Style Manager Interface
 
-        /*  NOTE: when copying this code, make sure that the class creates and disposes the style manager, e.g.
-          
-                public MyControl()
-                {
-                    _styleManager = new MetroStyleManager();
-                    _styleManager.MetroStyleChanged += OnMetroStyleChanged;
-                }
-                   
-                protected override void Dispose(bool disposing)
-                {
-                    if (disposing) _styleManager.Dispose();
-                    base.Dispose(disposing);
-                }
-         
-         */
-
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         MetroStyleManager IMetroStyledComponent.InternalStyleManager
         {
@@ -132,13 +96,7 @@ namespace MetroFramework.Controls
 
         // Event handler for our style manager's updates
         // NOTE: The event may have been triggered from a different thread.
-        private void OnMetroStyleChanged(object sender, EventArgs e)
-        {
-            if (InvokeRequired)
-                Invoke(new MethodInvoker(Invalidate));
-            else
-                Invalidate();
-        }
+		protected abstract void OnMetroStyleChanged(object sender, EventArgs e);
 
         // Override Site property to set the style manager into design mode, too.
         public override ISite Site
@@ -152,7 +110,6 @@ namespace MetroFramework.Controls
 		#region Properties
 
         [DefaultValue(MetroThemeStyle.Default)]
-		[AmbientValue(MetroThemeStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroThemeStyle Theme
         {
@@ -161,28 +118,12 @@ namespace MetroFramework.Controls
         }
 
 		[DefaultValue(MetroColorStyle.Default)]
-		[AmbientValue(MetroColorStyle.Default)]
         [Category(MetroDefaults.CatAppearance)]
         public MetroColorStyle Style
         {
             get { return _styleManager.Style; }
             set { _styleManager.Style = value; }
         }
-
-	<# 	if( isContainer )  { 	#>
-
-	    /// <summary>
-        ///     A style manager controlling this container and all child controls.
-        /// </summary>
-        /// <remarks>
-        ///     To assign a Style Manager to a <see cref="Forms.MetroForm"/> or
-        ///     <see cref="Controls.MetroUserControl"/>, add a <see cref="Components.MetroStyleManager"/>
-        ///     component to the designer and assign the form or user control as Owner.
-        /// </remarks>
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MetroStyleManager StyleManager { get; set; }
-
-	<#  } #>
 
 		#endregion
 

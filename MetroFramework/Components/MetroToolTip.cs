@@ -33,50 +33,18 @@ using MetroFramework.Drawing;
 namespace MetroFramework.Components
 {
     [ToolboxBitmap(typeof(ToolTip))]
-    public class MetroToolTip : ToolTip, IMetroComponent
+    [ToolboxItemFilter("System.Windows.Forms")]
+    public class MetroToolTip : MetroToolTipBase
     {
-        #region Interface
 
-        private MetroColorStyle metroStyle = MetroDefaults.Style;
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroColorStyle Style
+        protected override void OnMetroStyleChanged(object sender, EventArgs e)
         {
-            get
-            {
-                if (InternalStyleManager != null)
-                    return InternalStyleManager.Style;
-
-                return metroStyle;
-            }
-            set { metroStyle = value; }
+            // do nothing
         }
-
-        private MetroThemeStyle metroTheme = MetroDefaults.Theme;
-        [DefaultValue(MetroDefaults.Theme)]
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroThemeStyle Theme
-        {
-            get
-            {
-                if (InternalStyleManager != null)
-                    return InternalStyleManager.Theme;
-
-                return metroTheme;
-            }
-            set { metroTheme = value; }
-        }
-
-        private MetroStyleManager metroStyleManager = null;
-        [Browsable(false)]
-        public MetroStyleManager InternalStyleManager
-        {
-            get { return metroStyleManager; }
-            set { metroStyleManager = value; }
-        }
-
-        #endregion
 
         #region Fields
+
+        // TODO: Instead of hiding these, we should implement a property filter
 
         [DefaultValue(true)]
         [Browsable(false)]
@@ -161,8 +129,11 @@ namespace MetroFramework.Components
 
         private void MetroToolTip_Popup(object sender, PopupEventArgs e)
         {
-            IMetroStyledComponent styledWindow = e.AssociatedWindow as IMetroStyledComponent;
-            if( styledWindow != null ) InternalStyleManager = styledWindow.InternalStyleManager;
+            // only link to the windows internal style-manager if it deosn't expose a style manager component
+            // (with a style manager component, the style manager will update us automatically)
+            IMetroContainerControl styledWindow = e.AssociatedWindow as IMetroContainerControl;
+            if (styledWindow != null && styledWindow.StyleManager == null) 
+                ((IMetroStyledComponent)this).InternalStyleManager = styledWindow.InternalStyleManager;
 
             e.ToolTipSize = new Size(e.ToolTipSize.Width + 24, e.ToolTipSize.Height + 9);
         }

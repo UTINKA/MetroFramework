@@ -45,6 +45,8 @@ namespace MetroFramework.Controls
     public class MetroScrollBar : MetroControlBase, IMetroControl
     {
 
+        internal const int SCROLLBAR_DEFAULT_SIZE = 10;
+
         #region Events
 
         public event ScrollEventHandler Scroll;
@@ -108,7 +110,7 @@ namespace MetroFramework.Controls
         private readonly Timer progressTimer = new Timer();
 
         private int mouseWheelBarPartitions = 10;
-
+        [DefaultValue(10)]
         public int MouseWheelBarPartitions
         {
             get { return mouseWheelBarPartitions; }
@@ -138,6 +140,7 @@ namespace MetroFramework.Controls
         }
 
         [Category(MetroDefaults.CatAppearance)]
+        [DefaultValue(SCROLLBAR_DEFAULT_SIZE)]
         public int ScrollbarSize
         {
             get { return Orientation == MetroScrollOrientation.Vertical ? Width : Height; }
@@ -189,12 +192,8 @@ namespace MetroFramework.Controls
             }
         }
 
-        private int minimum;
-        private int maximum = 100;
-        private int smallChange = 1;
-        private int largeChange = 10;
-        private int curValue;
-
+        private int minimum = 0;
+        [DefaultValue(0)]
         public int Minimum
         {
             get { return minimum; }
@@ -231,6 +230,8 @@ namespace MetroFramework.Controls
             }
         }
 
+        private int maximum = 100;
+        [DefaultValue(100)]
         public int Maximum
         {
             get { return maximum; }
@@ -262,6 +263,7 @@ namespace MetroFramework.Controls
             }
         }
 
+        private int smallChange = 1;
         [DefaultValue(1)]
         public int SmallChange
         {
@@ -278,7 +280,8 @@ namespace MetroFramework.Controls
             }
         }
 
-        [DefaultValue(5)]
+        private int largeChange = 10;
+        [DefaultValue(10)]
         public int LargeChange
         {
             get { return largeChange; }
@@ -304,6 +307,7 @@ namespace MetroFramework.Controls
 
         private bool dontUpdateColor = false;
 
+        private int curValue = 0;
         [DefaultValue(0)]
         [Browsable(false)]
         public int Value
@@ -371,7 +375,7 @@ namespace MetroFramework.Controls
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint, true);
 
-            Width = 10;
+            Width = SCROLLBAR_DEFAULT_SIZE;
             Height = 200;
 
             SetupScrollBar();
