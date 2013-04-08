@@ -4,7 +4,7 @@ NOTE
 The only reason for the existence of this fork is that the original author insists on removing 
 all documentation from the code. Forked & relicensed under same license (see below).
 
-This fork: http://github.com/thielj/winforms-modernui
+This fork: http://github.com/thielj/MetroFramework
 
 Original: http://github.com/viperneo/winforms-modernui
 
@@ -74,7 +74,7 @@ License
 
 MetroFramework - Modern UI for WinForms
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
+Copyright (c) 2013 Jens Thiel, http://github.com/thielj/MetroFramework
 
 Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
 
