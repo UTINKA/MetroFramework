@@ -74,7 +74,7 @@ License
 
 MetroFramework - Modern UI for WinForms
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-
+Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
 
 Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
 
