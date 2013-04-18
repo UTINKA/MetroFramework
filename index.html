@@ -22,8 +22,9 @@
           <h2 id="project_tagline">Windows Modern UI for .NET WinForms Applications</h2>
 
             <section id="downloads">
-              <!--<a class="zip_download_link" href="https://github.com/thielj/MetroFramework/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/thielj/MetroFramework/tarball/master">Download this project as a tar.gz file</a>-->
+                <a class="zip_download_link" href="http://nuget.org/packages/MetroFramework/">Download from NuGet</a>
+              <!--<a class="zip_download_link" href="https://github.com/thielj/MetroFramework/zipball/master">Download this project as a .zip file</a>-->
+              <a class="tar_download_link" href="https://github.com/thielj/MetroFramework/tarball/master">Download this project as a tar.gz file</a>
             </section>
         </header>
     </div>
@@ -32,6 +33,12 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
           <p>Add a fresh look to your .NET WinForms application with controls using the Modern &#39;Metro&#39; UI theme of Windows 8. </p>
+          <ul>
+              <li><a href="=Screenshots">Screenshots</a></li>
+              <li><a href="=Installation">Installation</a></li>
+              <li><a href="=GettingStarted">Getting Started</a></li>
+              <li><a href="=License">License</a></li>
+          </ul>
           <p>This work is based on software from the winforms-modernui project. Changes and additions include:</p>
           <ul>
               <li>Custom themes (see themes.xml)</li>
@@ -54,21 +61,17 @@
               <li>Plus loads of other bug fixes throughout the library...</li>
           </ul>
           <p>
-              Some of the changes have been back-ported by the original author but are incomplete or have been broken.
-              </p><p> 
-              The reason for the existence of this fork is that the original author insists on removing 
-              all documentation from the code and multiple issues with integrating pull requests due to silly 
-              renaming and refactoring policies. 
+              Some of the changes have been back-ported by the original author but are incomplete or have been broken due to his silly 
+              renaming and refactoring policies. When he also insisted on deleting ALL documentation, I decided to fork the project. 
         </p>
-              <p>Forked &amp; relicensed under same license (see below).</p>
 
-<h2>Getting started</h2>
+<a id="GettingStarted"></a><h2>Getting started</h2>
           
-          <p>Once you have <a href="#Installation">installed</a> the software, add a reference to MetroFramework.dll and MetroFramework.Designer.dll. 
-          The latter is for design-time support and doesn't need to be deployed. </p>
+          <p>Once you have <a href="#Installation">installed</a> the software, add a reference to MetroFramework.dll and MetroFramework.Design.dll. 
+          The latter is for design-time support and doesn't need to be deployed, i.e. you should set the "Copy Local2 property to false. </p>
           <p>Due to the non-intrusive installation procedure, support for creating your first form isn't optimal. The recommended procedure is
               to add a new "Windows Form" to your project. Then press F7 to switch into code view and change the base class from "Form" to 
-              "MetroFramework.Forms.Form". Switch back to design view and you should be able to add MetroFramework controls from the Toolbox as usual.
+              "MetroFramework.Forms.Form". Switch back to design view and you should be able to add more MetroFramework controls from the Toolbox as usual.
           </p>
           
           <a id="Installation"></a>
@@ -86,14 +89,15 @@
 <p>If you like living on the edge, download the <a href="https://github.com/thielj/MetroFramework/zipball/master">latest source code</a> or
 clone the project on <a href="https://github.com/thielj/MetroFramework/">Git Hub</a>.</p>
 
-<h2>Supported Platforms</h2>
+<a id="Platforms"></a><h2>Supported Platforms</h2>
 
 <p>Windows XP and later, incl. Windows 8</p>
-          <h2>Requirements</h2>
+          
+          <a id="Requirements"></a><h2>Requirements</h2>
 
 <p>.NET Framework 4.0 (Client Profile) and later.</p>
 
-<h2>Controls</h2>
+<a id="Controls"></a><h2>Controls</h2>
 
 <ul>
 <li>Button</li>
@@ -112,7 +116,10 @@ clone the project on <a href="https://github.com/thielj/MetroFramework/">Git Hub
     <li>TabControl</li>
     <li>TrackBar</li>
     <li>UserControl</li>
-</ul><h2>Components</h2>
+</ul>
+          
+          
+          <a id="Components"></a><h2>Components</h2>
 
 <ul>
 <li>StyleManager (Cascading styles and theming)</li>
@@ -131,7 +138,7 @@ clone the project on <a href="https://github.com/thielj/MetroFramework/">Git Hub
 
 <p style="font-size: 75%">(Image source: http://github.com/viperneo/)</p>
 
-<h2>License</h2>
+          <a id="License"></a><h2>License</h2>
 
 <p>Copyright (c) 2013 Jens Thiel, <a href="http://thielj.github.io/MetroFramework/">http://thielj.github.io/MetroFramework/</a></p>
 

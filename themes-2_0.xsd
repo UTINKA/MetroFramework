@@ -1,13 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--  
+<!--
+
     MetroFramework - Windows Modern UI for .NET WinForms applications
 
     Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 
     This work is licensed under the Creative Commons Attribution-NoDerivs 3.0 Unported License. 
     To view a copy of this license, visit http://creativecommons.org/licenses/by-nd/3.0/.
+    
  -->
-<xs:schema id="metroframework" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+
+<xs:schema id="themes-2.0" 
+           targetNamespace="http://thielj.github.io/MetroFramework/themes-2_0.xsd" 
+           attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns="http://thielj.github.io/MetroFramework/themes-2_0.xsd"
+           xmlns:mstns="http://thielj.github.io/MetroFramework/themes-2_0.xsd"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
   <xs:element name="metroframework" >
     <xs:complexType>
       <xs:all>
