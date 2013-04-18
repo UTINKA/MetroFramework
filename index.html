@@ -19,11 +19,11 @@
           <a id="forkme_banner" href="https://github.com/thielj/MetroFramework">View on GitHub</a>
 
           <h1 id="project_title">MetroFramework</h1>
-          <h2 id="project_tagline">Metro UI of Windows 8 for .NET Windows Forms applications</h2>
+          <h2 id="project_tagline">Windows Modern UI for .NET WinForms Applications</h2>
 
             <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/thielj/MetroFramework/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/thielj/MetroFramework/tarball/master">Download this project as a tar.gz file</a>
+              <!--<a class="zip_download_link" href="https://github.com/thielj/MetroFramework/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/thielj/MetroFramework/tarball/master">Download this project as a tar.gz file</a>-->
             </section>
         </header>
     </div>
@@ -31,59 +31,97 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h2>NOTE</h2>
+          <p>Add a fresh look to your .NET WinForms application with controls using the Modern &#39;Metro&#39; UI theme of Windows 8. </p>
+          <p>This work is based on software from the winforms-modernui project. Changes and additions include:</p>
+          <ul>
+              <li>Custom themes (see themes.xml)</li>
+              <li>Conversion into a clean, aspect-oriented design (compare old ./. new).</li>
+              <li>Complete rewrite of Theme Manager to support global and cascading style changes (see MetroStyleManager for docs)</li>
+              <li>True transparent controls (not the &#39;use parent BackColor&quot; approach - see Transparency aspect)</li>
+              <li>Design-time support for "cleaning" some of the serialization garbage left by the original project code</li>
+              <li>Style Extender to support theming of legacy controls</li>
+              <li>Massively-reduced flickering throughout most control types</li>
+              <li>Font Resolver to implement fall-back alternatives for Segoe UI fonts</li>
+              <li>Implemented compliancy with .NET 4, Client Profile (i.e. no dependency on System.Design.dll)</li>
+              <li>Fixed issues with maximizing and restoring windows</li>
+              <li>CLS Compliancy and compatibility with partially-trusted callers (APTCA)</li>
+              <li>Added true Aero Shadow and lightweight System Drop shadow, multiple bug-fixes and improvement to the other shadow controls</li>
+              <li>Improvements to display over Remote Desktop (minimized flickering, dynamic switching to a more lightweight display theme)</li>
+              <li>Form and Panel borders, optionally activated only during remote-desktop sessions as a drop shadow replacement</li>
+              <li>True multi-monitor support</li>
+              <li>Correct centering forms to screen or parent</li>
+              <li>Lot's of fixes to designer serialization</li>
+              <li>Plus loads of other bug fixes throughout the library...</li>
+          </ul>
+          <p>
+              Some of the changes have been back-ported by the original author but are incomplete or have been broken.
+              </p><p> 
+              The reason for the existence of this fork is that the original author insists on removing 
+              all documentation from the code and multiple issues with integrating pull requests due to silly 
+              renaming and refactoring policies. 
+        </p>
+              <p>Forked &amp; relicensed under same license (see below).</p>
 
-<p>The only reason for the existence of this fork is that the original author insists on removing 
-all documentation from the code. Forked &amp; relicensed under same license (see below).</p>
+<h2>Getting started</h2>
+          
+          <p>Once you have <a href="#Installation">installed</a> the software, add a reference to MetroFramework.dll and MetroFramework.Designer.dll. 
+          The latter is for design-time support and doesn't need to be deployed. </p>
+          <p>Due to the non-intrusive installation procedure, support for creating your first form isn't optimal. The recommended procedure is
+              to add a new "Windows Form" to your project. Then press F7 to switch into code view and change the base class from "Form" to 
+              "MetroFramework.Forms.Form". Switch back to design view and you should be able to add MetroFramework controls from the Toolbox as usual.
+          </p>
+          
+          <a id="Installation"></a>
+          <h2>Installation</h2>
 
-<p>This fork: <a href="http://github.com/thielj/MetroFramework">http://github.com/thielj/MetroFramework</a></p>
+<p>It is recommended to install MetroFramework using NuGet, as this will give you release builds and automatic updates. In Visual Studio, right-click on your project in Solution Explorer and choose "Manage NuGet packages...". Then "Search Online" for "MetroFramework" and install the "MetroFramework Installer". The installer will pull-in all required dependencies, i.e. there is no need to install other packages manually. <!-- It is recommended that you also install the "MetroFramework Sample" package which will add a demo form to your project. --></p>
 
-<p>Original: <a href="http://github.com/viperneo/winforms-modernui">http://github.com/viperneo/winforms-modernui</a></p>
+          <p>To install the packages using the NuGet shell, simply type the below:</p>
 
-<p>README below is from the original package.</p>
+<pre><code>Install-Package MetroFramework
+</code></pre>
 
-<h2>MetroFramework - WinForms on steroids.</h2>
+<p>More information about the NuGet packages: <a href="http://nuget.org/packages/MetroFramework/">http://nuget.org/packages/MetroFramework/</a></p>
 
-<p>Brings the new Modern UI alias Metro UI of Windows 8 to .NET Windows Forms applications. </p>
+<p>If you like living on the edge, download the <a href="https://github.com/thielj/MetroFramework/zipball/master">latest source code</a> or
+clone the project on <a href="https://github.com/thielj/MetroFramework/">Git Hub</a>.</p>
 
-<h2>Supported platforms</h2>
+<h2>Supported Platforms</h2>
 
-<ul>
-<li>Windows XP SP1/SP2/SP3 (without Aero Glass)</li>
-<li>Windows Vista</li>
-<li>Windows 7</li>
-<li>Windows 8</li>
-</ul><h2>Requirements</h2>
+<p>Windows XP and later, incl. Windows 8</p>
+          <h2>Requirements</h2>
 
-<ul>
-<li>.NET Framework 2.0 and above.</li>
-</ul><h2>Controls supported</h2>
+<p>.NET Framework 4.0 (Client Profile) and later.</p>
+
+<h2>Controls</h2>
 
 <ul>
 <li>Button</li>
-<li>ComboBox</li>
-<li>Checkbox</li>
-<li>RadioButton</li>
-<li>Toggle</li>
-<li>Label</li>
-<li>Link</li>
-<li>Panel</li>
-<li>ScrollBar</li>
-<li>MetroTile</li>
-<li>ProgressBar</li>
-<li>ProgressSpinner</li>
-<li>TabControl</li>
-<li>TrackBar</li>
-<li>Custom User Control</li>
-</ul><h2>Components supported</h2>
+    <li>ComboBox</li>
+    <li>Checkbox</li>
+    <li>RadioButton</li>
+    <li>Toggle</li>
+    <li>Label</li>
+    <li>SelectableLabel</li>
+    <li>Link</li>
+    <li>Panel</li>
+    <li>ScrollBar</li>
+    <li>Tile</li>
+    <li>ProgressBar</li>
+    <li>ProgressSpinner</li>
+    <li>TabControl</li>
+    <li>TrackBar</li>
+    <li>UserControl</li>
+</ul><h2>Components</h2>
 
 <ul>
-<li>StyleExtender (Apply theme propertys to none framework controls)</li>
-<li>StyleManager (Auto inherit a default style to all used controls)</li>
-<li>ToolTip</li>
+<li>StyleManager (Cascading styles and theming)</li>
+    <li>StyleExtender (Apply selected theme propertys to legacy controls)</li>
+    <li>ToolTip</li>
 </ul><h2>Screenshots</h2>
 
-<p><em>Light</em></p>
+<p>MetroFramework comes with two stock themes, Light and Dark. These themes are complimented by a selection of style colors to allow further customization. You can easily add your own themes (seee themes.xml).</p>
+          <p><em>Light</em></p>
 
 <p><img src="http://i.imgur.com/8Yk1BiN.png" alt="MetroFramework"><img src="http://i.imgur.com/qjwRg5z.png" alt="MetroFramework"><img src="http://i.imgur.com/3S7NPLQ.png" alt="MetroFramework"><img src="http://i.imgur.com/ULRej3C.png" alt="MetroFramework"></p>
 
@@ -91,38 +129,31 @@ all documentation from the code. Forked &amp; relicensed under same license (see
 
 <p><img src="http://i.imgur.com/EddlvbX.png" alt="MetroFramework"><img src="http://i.imgur.com/Djnjkti.png" alt="MetroFramework"><img src="http://i.imgur.com/bI2c6kE.png" alt="MetroFramework"><img src="http://i.imgur.com/7cxHl1Y.png" alt="MetroFramework"></p>
 
+<p style="font-size: 75%">(Image source: http://github.com/viperneo/)</p>
+
 <h2>License</h2>
 
-<p>MetroFramework - Modern UI for WinForms</p>
+<p>Copyright (c) 2013 Jens Thiel, <a href="http://thielj.github.io/MetroFramework/">http://thielj.github.io/MetroFramework/</a></p>
 
-<p>Copyright (c) 2013 Jens Thiel, <a href="http://github.com/thielj/MetroFramework">http://github.com/thielj/MetroFramework</a></p>
+<p>This Software is licensed under the MIT (new) license. See <a href="https://raw.github.com/thielj/MetroFramework/master/LICENSE.md">LICENSE</a> for details.
 
-<p>Portions of this software are Copyright (c) 2011 Sven Walter, <a href="http://github.com/viperneo">http://github.com/viperneo</a></p>
-
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy of 
-this software and associated documentation files (the "Software"), to deal in the 
-Software without restriction, including without limitation the rights to use, copy, 
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
-and to permit persons to whom the Software is furnished to do so, subject to the 
-following conditions:</p>
-
-<p>The above copyright notice and this permission notice shall be included in 
-all copies or substantial portions of the Software.</p>
-
-<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+ </p>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">Metroframework maintained by <a href="https://github.com/thielj">thielj</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+          <div style="float: left; margin-right: 40px;"><a rel="license" href="http://creativecommons.org/licenses/by-nd/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0;" src="http://i.creativecommons.org/l/by-nd/3.0/88x31.png" height="31" width="88" /></a></div>
+          <div>
+        <p class="copyright" style="font-size: 80%;">
+            <a xmlns:dct="http://purl.org/dc/terms/" href="http://thielj.github.io/MetroFramework/" property="dct:title">MetroFramework</a>
+            maintained by
+            <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/thielj/MetroFramework"  property="cc:attributionName" rel="cc:attributionURL">Jens Thiel</a>.
+            Except where otherwise noted, all documentation on this web page is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/3.0/deed.en_US">Creative Commons Attribution-NoDerivs 3.0 Unported License</a>.
+        </p>
+        </div>
+
       </footer>
     </div>
 
