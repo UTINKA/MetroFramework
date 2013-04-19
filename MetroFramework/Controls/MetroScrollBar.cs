@@ -1,38 +1,45 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Security;
 using System.Windows.Forms;
-using MetroFramework.Components;
-using MetroFramework.Drawing;
-using MetroFramework.Interfaces;
+
 using MetroFramework.Native;
 
 namespace MetroFramework.Controls
 {
+    // TODO: Implement Selectable
+    // TODO: Get rid of this, use ScrollOrientation
     public enum MetroScrollOrientation
     {
         Horizontal,
@@ -42,8 +49,10 @@ namespace MetroFramework.Controls
     [Designer("MetroFramework.Design.MetroScrollBarDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [DefaultEvent("Scroll")]
     [DefaultProperty("Value")]
-    public class MetroScrollBar : MetroControlBase, IMetroControl
+    public class MetroScrollBar : MetroControlBase
     {
+
+        protected override string MetroControlCategory { get { return "ScrollBar"; } }
 
         internal const int SCROLLBAR_DEFAULT_SIZE = 10;
 
@@ -83,7 +92,7 @@ namespace MetroFramework.Controls
 
         #endregion
 
-        #region Fields
+        #region Properties
 
         private bool isFirstScrollEventVertical = true;
         private bool isFirstScrollEventHorizontal = true;
@@ -168,26 +177,12 @@ namespace MetroFramework.Controls
         public MetroScrollOrientation Orientation
         {
             get { return metroOrientation; }
-
             set
             {
-                if (value == metroOrientation)
-                {
-                    return;
-                }
-
+                if (value == metroOrientation) return;
                 metroOrientation = value;
-
-                if (value == MetroScrollOrientation.Vertical)
-                {
-                    scrollOrientation = ScrollOrientation.VerticalScroll;
-                }
-                else
-                {
-                    scrollOrientation = ScrollOrientation.HorizontalScroll;
-                }
-
-                Size = new Size(Height, Width);
+                scrollOrientation = value == MetroScrollOrientation.Vertical ? ScrollOrientation.VerticalScroll : ScrollOrientation.HorizontalScroll;
+                Size = new Size(Height, Width); // TODO: ???? why wrong order??
                 SetupScrollBar();
             }
         }
@@ -365,8 +360,6 @@ namespace MetroFramework.Controls
 
         #endregion
 
-        #region Constructor
-
         public MetroScrollBar()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
@@ -396,26 +389,19 @@ namespace MetroFramework.Controls
             Width = width;
         }
 
-        public bool HitTest(Point point)
-        {
-            return thumbRectangle.Contains(point);
-        }
-
-        #endregion
-
         #region Update Methods
 
         [SecuritySafeCritical]
         public void BeginUpdate()
         {
-            WinApi.SendMessage(Handle, (int) WinApi.Messages.WM_SETREDRAW, false, 0);
+            WinApi.SendMessage(Handle, WinApi.Messages.WM_SETREDRAW, false, 0);
             inUpdate = true;
         }
 
         [SecuritySafeCritical]
         public void EndUpdate()
         {
-            WinApi.SendMessage(Handle, (int)WinApi.Messages.WM_SETREDRAW, true, 0);
+            WinApi.SendMessage(Handle, WinApi.Messages.WM_SETREDRAW, true, 0);
             inUpdate = false;
             SetupScrollBar();
             Refresh();
@@ -425,54 +411,27 @@ namespace MetroFramework.Controls
 
         #region Paint Methods
 
-        protected override void OnPaintBackground(PaintEventArgs e)
+        protected override string MetroControlState
         {
-            // no painting here
+            get { if (!Enabled) return "Disabled"; if (!isHovered) return "Normal"; return isPressed ? "Press" : "Hover"; }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Color backColor, thumbColor, barColor;
+            try
+            {
+                e.Graphics.Clear(EffectiveBackColor);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+                Invalidate();
+            }
+        }
 
-            if (Parent != null)
-            {
-                if (Parent is IMetroControl)
-                {
-                    backColor = MetroPaint.BackColor.Form(Theme);
-                }
-                else
-                {
-                    backColor = Parent.BackColor;
-                }
-            }
-            else
-            {
-                backColor = MetroPaint.BackColor.Form(Theme);
-            }
-
-            if (isHovered && !isPressed && Enabled)
-            {
-                thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Hover(Theme);
-                barColor = MetroPaint.BackColor.ScrollBar.Bar.Hover(Theme);
-            }
-            else if (isHovered && isPressed && Enabled)
-            {
-                thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Press(Theme);
-                barColor = MetroPaint.BackColor.ScrollBar.Bar.Press(Theme);
-            }
-            else if (!Enabled)
-            {
-                thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Disabled(Theme);
-                barColor = MetroPaint.BackColor.ScrollBar.Bar.Disabled(Theme);
-            }
-            else
-            {
-                thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Normal(Theme);
-                barColor = MetroPaint.BackColor.ScrollBar.Bar.Normal(Theme);
-            }
-
-            e.Graphics.Clear(backColor);
-            DrawScrollBar(e.Graphics, backColor, thumbColor, barColor);
+        protected override void OnPaintForeground(PaintEventArgs e)
+        {
+            DrawScrollBar(e.Graphics, EffectiveBackColor, GetThemeColor("Thumb.BackColor"), GetThemeColor("Bar.BackColor"));
         }
 
         private void DrawScrollBar(Graphics g, Color backColor, Color thumbColor, Color barColor)
@@ -745,6 +704,11 @@ namespace MetroFramework.Controls
         #endregion
 
         #region Management Methods
+
+        public bool HitTest(Point point)
+        {
+            return thumbRectangle.Contains(point);
+        }
 
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {

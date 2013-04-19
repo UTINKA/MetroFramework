@@ -1,28 +1,33 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -104,10 +109,25 @@ namespace MetroFramework.Native
         public struct MINMAXINFO
         {
             public Point ptReserved;
-            public Point ptMaxSize;
-            public Point ptMaxPosition;
-            public Point ptMinTrackSize;
-            public Point ptMaxTrackSize;
+            /// <summary>
+            ///     The size a window should be maximized to. This depends on the screen it will end up, 
+            ///     so the window manager will request this info when we move the window around.
+            /// </summary>
+            public Size MaxSize;
+            /// <summary>
+            ///     The position of the window when maximized. Must be relative to the current screen, 
+            ///     so it's often (0,0) or close to that if the task bar is in the way.
+            /// </summary>
+            public Point MaxPosition;
+            /// <summary>
+            ///     The minimum size a window should be allowed to be resized to by dragging it's border or resize handle.
+            /// </summary>
+            public Size MinTrackSize;
+            /// <summary>
+            ///     The maximum size a window should be allowed to be resized to by dragging it's border or resize handle.
+            ///     This is usually the maximum dimensions of the virtual screen, i.e. the bounding box containing all screens.
+            /// </summary>
+            public Size MaxTrackSize;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -162,10 +182,10 @@ namespace MetroFramework.Native
 
         public enum ScrollBar
         {
-            SB_HORZ = 0,
-            SB_VERT = 1,
-            SB_CTL = 2,
-            SB_BOTH = 3,
+            Horizontal = 0,
+            Vertical = 1,
+            Control = 2,
+            Both = 3
         }
 
         public enum HitTest
@@ -423,6 +443,8 @@ namespace MetroFramework.Native
 
             public const int WM_DWMCOMPOSITIONCHANGED = 0x031E;
 
+            public const int OCM__BASE = WM_USER + 0x1C00; // e.g. OCM_COMMAND = OCM__BASE + WM_COMMAND
+
             public const  int SC_MOVE = 0xF010;
             public const  int SC_MINIMIZE = 0XF020;
             public const  int SC_MAXIMIZE = 0xF030;
@@ -487,12 +509,6 @@ namespace MetroFramework.Native
         [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
         public static extern Bool DeleteObject(IntPtr hObject);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern UInt32 GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, UInt32 dwNewLong);
-
         [DllImport("user32.dll")]
         public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
@@ -530,7 +546,7 @@ namespace MetroFramework.Native
         public static extern IntPtr GetDCEx(IntPtr hwnd, IntPtr hrgnclip, uint fdwOptions);
 
         [DllImport("user32.dll")]
-        public static extern bool ShowScrollBar(IntPtr hWnd, int bar, int cmd);
+        public static extern bool ShowScrollBar(IntPtr hWnd, ScrollBar bar, int cmd);
 
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr GetWindowDC(IntPtr handle);
@@ -564,6 +580,208 @@ namespace MetroFramework.Native
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         internal static extern bool GetWindowRect(IntPtr hWnd, [In, Out] ref RECT rect);
+
+        //---- GetWindowLongPtr
+
+        /// <summary>
+        ///     Retrieves information about the specified window. The function also retrieves the value at a specified offset into the extra window memory.
+        /// </summary>
+        /// <remarks>
+        ///     Certain window data is cached, so changes you made earlier might not have taken effect unless <seealso cref="SetWindowPos"/> was called.
+        ///     Note: This method is compatible with 32-bit and 64-bit system and will dispatch to the specific API function at run-time.
+        /// </remarks>
+        /// <seealso href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms633585(v=vs.85).aspx"/>
+        [SecurityCritical]
+        public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
+        {
+            return IntPtr.Size == 4 ? GetWindowLong32(hWnd, nIndex) : GetWindowLongPtr64(hWnd, nIndex);
+        }
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLong", CharSet = CharSet.Auto)]
+        private static extern IntPtr GetWindowLong32(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr", CharSet = CharSet.Auto)]
+        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
+
+        //---- SetWindowLongPtr
+
+        /// <summary>
+        ///     Changes an attribute of the specified window or sets a value at the specified offset in the extra window memory (32/64-bit).
+        /// </summary>
+        /// <remarks>
+        ///     Certain window data is cached, so changes you make will not take effect until you call the SetWindowPos function.
+        ///     Note: This method is compatible with 32-bit and 64-bit system and will dispatch to the specific API function at run-time.
+        /// </remarks>
+        /// <seealso href="http://msdn.microsoft.com/en-gb/library/windows/desktop/ms644898(v=vs.85).aspx"/>
+        [SecurityCritical]
+        public static IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            return IntPtr.Size == 4 ? SetWindowLong32(hWnd, nIndex, dwNewLong) : SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+        }
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLong", CharSet = CharSet.Auto)]
+        private static extern IntPtr SetWindowLong32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", CharSet = CharSet.Auto)]
+        private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        //---- GetClassLongPtr
+
+        /// <summary>
+        ///     Retrieves the specified value from the WNDCLASSEX structure associated with the specified window.
+        /// </summary>
+        /// <seealso href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms633581(v=vs.85).aspx"/>
+        [SecurityCritical]
+        public static IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex)
+        {
+            return IntPtr.Size == 4 ? GetClassLong32(hWnd, nIndex) : GetClassLongPtr64(hWnd, nIndex);
+        }
+
+        [DllImport("user32.dll", EntryPoint = "GetClassLong", CharSet = CharSet.Auto)]
+        private static extern IntPtr GetClassLong32(IntPtr hwnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "GetClassLongPtr", CharSet = CharSet.Auto)]
+        private static extern IntPtr GetClassLongPtr64(IntPtr hwnd, int nIndex);
+
+        //---- SetClassLongPtr
+
+        /// <summary>
+        ///     Replaces the specified value at the specified offset in the extra class memory or the WNDCLASSEX structure for 
+        ///     the class to which the specified window belongs.
+        /// </summary>
+        /// <remarks>
+        ///     Note: This method is compatible with 32-bit and 64-bit system and will dispatch to the specific API function at run-time.
+        /// </remarks>
+        /// <seealso href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms633589(v=vs.85).aspx"/>
+        [SecurityCritical]
+        public static IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            return IntPtr.Size == 4 ? SetClassLong32(hWnd, nIndex, dwNewLong) : SetClassLongPtr64(hWnd, nIndex, dwNewLong);
+        }
+
+        [DllImport("user32.dll", EntryPoint = "SetClassLong", CharSet = CharSet.Auto)]
+        private static extern IntPtr SetClassLong32(IntPtr hwnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", EntryPoint = "SetClassLongPtr", CharSet = CharSet.Auto)]
+        private static extern IntPtr SetClassLongPtr64(IntPtr hwnd, int nIndex, IntPtr dwNewLong);
+
+        // ----- SetWindowPos
+
+        /// <summary>
+        /// Changes the size, position, and Z order of a child, pop-up or top-level window.
+        /// </summary>
+        /// <remarks>
+        ///     If you have changed certain window data using <seealso cref="SetWindowLongPtr"/>, 
+        ///     you must call this function with the following flags for the changes to take effect: 
+        ///     <seealso cref="SetWindowPosFlags.NOMOVE"/> | <seealso cref="SetWindowPosFlags.NOSIZE"/> | <seealso cref="SetWindowPosFlags.NOZORDER"/> | <seealso cref="SetWindowPosFlags.FRAMECHANGED"/>.
+        /// </remarks>
+        /// <param name="hWnd">A handle to the window.</param>
+        /// <param name="hWndInsertAfter">A handle to the window to precede the positioned window in the Z order. See MSDN for special values.</param>
+        /// <param name="x">The new position of the left side of the window, in client coordinates.</param>
+        /// <param name="y">The new position of the top of the window, in client coordinates.</param>
+        /// <param name="w">The new width of the window, in pixels.</param>
+        /// <param name="h">The new height of the window, in pixels.</param>
+        /// <param name="uFlags">The window sizing and positioning flags. (SetWindowPosFlags value)</param>
+        /// <returns>Nonzero if function succeeds, zero if function fails.</returns>
+        /// <seealso href="http://msdn.microsoft.com/en-gb/library/windows/desktop/ms633545(v=vs.85).aspx"/>
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int w, int h, SetWindowPosFlags uFlags);
+
+        /// <summary>
+        /// SetWindowPos Flags
+        /// </summary>
+        [Flags]
+        public enum SetWindowPosFlags : uint
+        {
+            /// <summary>Retains the current size (ignores the w and h parameters).</summary>
+            NOSIZE = 0x0001,
+            /// <summary>Retains the current position (ignores X and Y parameters).</summary>
+            NOMOVE = 0x0002,
+            /// <summary>Retains the current Z order (ignores the hWndInsertAfter parameter).</summary>
+            NOZORDER = 0x0004,
+            /// <summary>Does not redraw changes. If this flag is set, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars),</summary>
+            NOREDRAW = 0x0008,
+            /// <summary>Does not activate the window.</summary> 
+            NOACTIVATE = 0x0010,
+            DRAWFRAME = 0x0020,
+            /// <summary>Applies new frame styles set using the SetWindowLong function. Sends a WM_NCCALCSIZE message to the window, even if the window's size is not being changed. If this flag is not specified, WM_NCCALCSIZE is sent only when the window's size is being changed.</summary>
+            FRAMECHANGED = 0x0020,
+            /// <summary>Displays the window.</summary>
+            SHOWWINDOW = 0x0040,
+            /// <summary>Hides the window.</summary>
+            HIDEWINDOW = 0x0080,
+            NOCOPYBITS = 0x0100,
+            /// <summary>Does not change the owner window's position in the Z order.</summary>
+            NOOWNERZORDER = 0x0200,
+            /// <summary>Same as the SWP_NOOWNERZORDER flag.</summary>
+            NOREPOSITION = 0x0200,
+            /// <summary>Prevents the window from receiving the WM_WINDOWPOSCHANGING message.</summary>
+            NOSENDCHANGING = 0x0400,
+            DEFERERASE = 0x2000,
+            ASYNCWINDOWPOS = 0x4000
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool RedrawWindow(IntPtr hWnd, ref RECT lprcUpdate, IntPtr hrgnUpdate, RedrawWindowFlags flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, RedrawWindowFlags flags);
+
+        [Flags]
+        public enum RedrawWindowFlags : uint
+        {
+            /// <summary>
+            /// Invalidates the rectangle or region that you specify in lprcUpdate or hrgnUpdate.
+            /// You can set only one of these parameters to a non-NULL value. If both are NULL, RDW_INVALIDATE invalidates the entire window.
+            /// </summary>
+            Invalidate = 0x1,
+
+            /// <summary>Causes the OS to post a WM_PAINT message to the window regardless of whether a portion of the window is invalid.</summary>
+            InternalPaint = 0x2,
+
+            /// <summary>
+            /// Causes the window to receive a WM_ERASEBKGND message when the window is repainted.
+            /// Specify this value in combination with the RDW_INVALIDATE value; otherwise, RDW_ERASE has no effect.
+            /// </summary>
+            Erase = 0x4,
+
+            /// <summary>
+            /// Validates the rectangle or region that you specify in lprcUpdate or hrgnUpdate.
+            /// You can set only one of these parameters to a non-NULL value. If both are NULL, RDW_VALIDATE validates the entire window.
+            /// This value does not affect internal WM_PAINT messages.
+            /// </summary>
+            Validate = 0x8,
+
+            NoInternalPaint = 0x10,
+
+            /// <summary>Suppresses any pending WM_ERASEBKGND messages.</summary>
+            NoErase = 0x20,
+
+            /// <summary>Excludes child windows, if any, from the repainting operation.</summary>
+            NoChildren = 0x40,
+
+            /// <summary>Includes child windows, if any, in the repainting operation.</summary>
+            AllChildren = 0x80,
+
+            /// <summary>Causes the affected windows, which you specify by setting the RDW_ALLCHILDREN and RDW_NOCHILDREN values, to receive WM_ERASEBKGND and WM_PAINT messages before the RedrawWindow returns, if necessary.</summary>
+            UpdateNow = 0x100,
+
+            /// <summary>
+            /// Causes the affected windows, which you specify by setting the RDW_ALLCHILDREN and RDW_NOCHILDREN values, to receive WM_ERASEBKGND messages before RedrawWindow returns, if necessary.
+            /// The affected windows receive WM_PAINT messages at the ordinary time.
+            /// </summary>
+            EraseNow = 0x200,
+
+            /// <summary>
+            /// Causes any part of the nonclient area of the window that intersects the update region to receive a WM_NCPAINT message. The RDW_INVALIDATE flag must also be specified; otherwise, RDW_FRAME has no effect.
+            /// </summary>
+            Frame = 0x400,
+
+            NoFrame = 0x800
+        }
 
         #endregion
 

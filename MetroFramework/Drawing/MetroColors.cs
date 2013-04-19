@@ -22,11 +22,13 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+using System;
 using System.Drawing;
 
-namespace MetroFramework
+namespace MetroFramework.Drawing
 {
-    public sealed class MetroColors
+    [Obsolete("Use new XML StyleManager", false)]
+    internal static class MetroColors
     {
         public static Color Black { get { return Color.FromArgb(0, 0, 0); } }
         public static Color White { get { return Color.FromArgb(255, 255, 255); } }

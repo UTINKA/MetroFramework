@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MetroFramework</RootNamespace>
     <AssemblyName>MetroFramework</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../MetroFramework.snk</AssemblyOriginatorKeyFile>
@@ -19,8 +19,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -61,7 +60,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
@@ -80,6 +81,7 @@
       <DesignTime>True</DesignTime>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MetroStyles.cs" />
     <Compile Include="Components\MetroStyleExtender.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -87,6 +89,34 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Components\MetroToolTip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\Aspects\BorderStyle.cs">
+      <DependentUpon>BorderStyle.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\Aspects\FontStyle.cs">
+      <DependentUpon>FontStyle.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Controls\Aspects\StyleColor.cs">
+      <DependentUpon>StyleColor.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Drawing\MetroBorderStyle.cs" />
+    <Compile Include="Controls\Aspects\Selectable.cs">
+      <DependentUpon>Selectable.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MetroSelectableLabel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\MetroButton.cs">
@@ -137,6 +167,7 @@
     <Compile Include="Controls\MetroTile.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\MetroTilePart.cs" />
     <Compile Include="Controls\MetroToggle.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -146,6 +177,7 @@
     <Compile Include="Controls\MetroUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="MetroExtensions.cs" />
     <Compile Include="Drawing\MetroPaint.cs" />
     <Compile Include="Forms\MetroMessageBox.cs">
       <SubType>Form</SubType>
@@ -162,13 +194,16 @@
     <Compile Include="Interfaces\IMetroComponent.cs" />
     <Compile Include="Interfaces\IMetroStyledComponent.cs" />
     <Compile Include="Localization\MetroLocalize.cs" />
-    <Compile Include="MetroBrushes.cs" />
-    <Compile Include="MetroColors.cs" />
+    <Compile Include="Drawing\MetroBrushes.cs" />
+    <Compile Include="Drawing\MetroColors.cs" />
     <Compile Include="MetroColorStyle.cs" />
     <Compile Include="MetroDefaults.cs" />
     <Compile Include="MetroFonts.cs" />
-    <Compile Include="MetroPens.cs" />
+    <Compile Include="Drawing\MetroFontSize.cs" />
+    <Compile Include="Drawing\MetroFontWeight.cs" />
+    <Compile Include="Drawing\MetroPens.cs" />
     <Compile Include="MetroThemeStyle.cs" />
+    <Compile Include="Native\DwmApi.cs" />
     <Compile Include="Native\RECT.cs" />
     <Compile Include="Native\SubClass.cs" />
     <Compile Include="Native\Taskbar.cs" />
@@ -185,11 +220,36 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Aspects\Transparency.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Transparency.tt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="XML\themes-2_0.cs">
+      <DependentUpon>themes-2_0.xsd</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Components\MetroComponentBase.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MetroComponentBase.cs</LastGenOutput>
+    </None>
+    <None Include="Controls\Aspects\BorderStyle.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BorderStyle.cs</LastGenOutput>
+    </None>
+    <None Include="Controls\Aspects\FontStyle.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FontStyle.cs</LastGenOutput>
+    </None>
+    <None Include="Controls\Aspects\StyleColor.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>StyleColor.cs</LastGenOutput>
+    </None>
+    <None Include="Controls\Aspects\Selectable.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Selectable.cs</LastGenOutput>
     </None>
     <None Include="Controls\MetroControlBase.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -200,18 +260,19 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
+    <None Include="Controls\Aspects\Transparency.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Transparency.cs</LastGenOutput>
+    </None>
+    <None Include="XML\themes-2_0.xsc">
+      <DependentUpon>themes-2_0.xsd</DependentUpon>
+    </None>
+    <None Include="XML\themes-2_0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\themes-2_0.xss">
+      <DependentUpon>themes-2_0.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\MetroTaskWindow.resx">
@@ -228,6 +289,11 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="themes.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,9 +1,9 @@
-﻿/*
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
  
-MetroFramework - Modern UI for WinForms
+MetroFramework - Windows Modern UI for .NET WinForms applications
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
-Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in the 
@@ -23,6 +23,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  
  */
+#endregion
 
 using System;
 using System.Collections;
@@ -46,7 +47,7 @@ namespace MetroFramework.Components
     /// </remarks>
     /// <seelso href="http://www.codeproject.com/Articles/4683/Getting-to-know-IExtenderProvider"/>
     [ProvideProperty("ApplyMetroTheme", typeof(Control))] // we can provide more than one property if we like
-    public sealed class MetroStyleExtender : Component, IExtenderProvider, IMetroComponent, IMetroStyledComponent
+    public sealed class MetroStyleExtender : Component, IExtenderProvider, ISupportInitialize, IMetroComponent, IMetroStyledComponent
     {
 
         private MetroStyleManager _styleManager;
@@ -115,8 +116,9 @@ namespace MetroFramework.Components
                 return;
             }
 
-            Color backColor = MetroPaint.BackColor.Form(_styleManager.Theme);
-            Color foreColor = MetroPaint.ForeColor.Label.Normal(_styleManager.Theme);
+            Color backColor = _styleManager.GetThemeColor("*.BackColor.*");
+            Color foreColorNormal = _styleManager.GetThemeColor("*.ForeColor.Normal");
+            Color foreColorDisabled = _styleManager.GetThemeColor("*.ForeColor.Disabled");
 
             foreach (Control ctrl in _extendedControls)
             {
@@ -127,17 +129,19 @@ namespace MetroFramework.Components
                 catch { }
                 try
                 {
-                    if( ctrl.ForeColor != foreColor) ctrl.ForeColor = foreColor;
+                    Color col = ctrl.Enabled ? foreColorNormal : foreColorDisabled;
+                    if( ctrl.ForeColor != col) ctrl.ForeColor = col;
                 }
                 catch { }
             }
         }
 
-        // Thuis must only be called from the control's UI thread
+        // This must only be called from the control's UI thread
         private void UpdateTheme(Control ctrl)
         {
-            Color backColor = MetroPaint.BackColor.Form(_styleManager.Theme);
-            Color foreColor = MetroPaint.ForeColor.Label.Normal(_styleManager.Theme);
+            Color backColor = _styleManager.GetThemeColor("*.BackColor.*");
+            Color foreColorNormal = _styleManager.GetThemeColor("*.ForeColor.*");
+            Color foreColorDisabled = _styleManager.GetThemeColor("*.ForeColor.Disabled");
 
             try
             {
@@ -146,7 +150,9 @@ namespace MetroFramework.Components
             catch { }
             try
             {
-                if (ctrl.ForeColor != foreColor) ctrl.ForeColor = foreColor;
+                Color col = ctrl.Enabled ? foreColorNormal : foreColorDisabled;
+                if (ctrl.ForeColor != col) ctrl.ForeColor = col;
+                // TODO: Hook to the EnabledChanged event??
             }
             catch { }
         }
@@ -196,5 +202,14 @@ namespace MetroFramework.Components
 
         #endregion
 
+        #region ISupportInitialize implementation
+
+        /// <summary>Signals the object that initialization is starting.</summary>
+        void ISupportInitialize.BeginInit() { }
+
+        /// <summary>Signals the object that initialization is complete.</summary>
+        void ISupportInitialize.EndInit() { UpdateTheme(); }
+
+        #endregion
     }
 }

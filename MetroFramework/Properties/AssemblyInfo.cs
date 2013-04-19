@@ -2,7 +2,7 @@
  
 MetroFramework - Modern UI for WinForms
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
@@ -70,12 +70,16 @@ using System.Security;
 [assembly: InternalsVisibleTo(MetroFramework.AssemblyRef.MetroFrameworkDesignIVT)]
 [assembly: InternalsVisibleTo(MetroFramework.AssemblyRef.MetroFrameworkFontsIVT)]
 
+#if DEBUG
+[assembly: InternalsVisibleTo("XmlHelper, PublicKey=" + MetroFramework.AssemblyRef.MetroFrameworkKeyFull)]
+#endif
+
 internal static class MetroFrameworkAssembly
 {
     internal const string Title = "MetroFramework.dll";
-    internal const string Version = "1.2.0.0";
+    internal const string Version = "1.2.0.3";
     internal const string Description = "Metro UI Framework for .NET WinForms";
-    internal const string Copyright = "Copyright \x00a9 2013 Jens Thiel. Portions of this software are Copyright \x00a9 2011 Sven Walter.  All rights reserved.";
+    internal const string Copyright = "Copyright \x00a9 2013 Jens Thiel.  All rights reserved.";
     internal const string Company = "Jens Thiel";
     internal const string Product = "MetroFramework";
 }

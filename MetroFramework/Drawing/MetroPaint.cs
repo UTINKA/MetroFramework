@@ -21,19 +21,16 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+using System;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace MetroFramework.Drawing
 {
-    public enum MetroBorderStyle
+    [Obsolete("Use new XML StyleManager", false)]
+    public static class MetroPaint
     {
-        None,
-        FixedSingle
-    }
 
-    public sealed class MetroPaint
-    {
         public sealed class BorderColor
         {
             public static Color Form(MetroThemeStyle theme)
@@ -489,7 +486,7 @@ namespace MetroFramework.Drawing
                 }
             }
 
-            public static Color Title(MetroThemeStyle theme)
+            public static Color Form(MetroThemeStyle theme)
             {
                 if (theme == MetroThemeStyle.Dark)
                     return Color.FromArgb(255, 255, 255);
@@ -695,8 +692,7 @@ namespace MetroFramework.Drawing
             }
         }
 
-        #region Helper Methods
-
+        [Obsolete]
         public static Color GetStyleColor(MetroColorStyle style)
         {
             switch (style)
@@ -748,6 +744,7 @@ namespace MetroFramework.Drawing
             }
         }
 
+        [Obsolete]
         public static SolidBrush GetStyleBrush(MetroColorStyle style)
         {
             switch (style)
@@ -799,6 +796,7 @@ namespace MetroFramework.Drawing
             }
         }
 
+        [Obsolete]
         public static Pen GetStylePen(MetroColorStyle style)
         {
             switch (style)
@@ -850,46 +848,5 @@ namespace MetroFramework.Drawing
             }
         }
 
-        public static TextFormatFlags GetTextFormatFlags(ContentAlignment textAlign)
-        {
-            TextFormatFlags controlFlags = TextFormatFlags.EndEllipsis;
-
-            switch (textAlign)
-            {
-                case ContentAlignment.TopLeft:
-                    controlFlags |= TextFormatFlags.Top | TextFormatFlags.Left;
-                    break;
-                case ContentAlignment.TopCenter:
-                    controlFlags |= TextFormatFlags.Top | TextFormatFlags.HorizontalCenter;
-                    break;
-                case ContentAlignment.TopRight:
-                    controlFlags |= TextFormatFlags.Top | TextFormatFlags.Right;
-                    break;
-
-                case ContentAlignment.MiddleLeft:
-                    controlFlags |= TextFormatFlags.VerticalCenter | TextFormatFlags.Left;
-                    break;
-                case ContentAlignment.MiddleCenter:
-                    controlFlags |= TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter;
-                    break;
-                case ContentAlignment.MiddleRight:
-                    controlFlags |= TextFormatFlags.VerticalCenter | TextFormatFlags.Right;
-                    break;
-
-                case ContentAlignment.BottomLeft:
-                    controlFlags |= TextFormatFlags.Bottom | TextFormatFlags.Left;
-                    break;
-                case ContentAlignment.BottomCenter:
-                    controlFlags |= TextFormatFlags.Bottom | TextFormatFlags.HorizontalCenter;
-                    break;
-                case ContentAlignment.BottomRight:
-                    controlFlags |= TextFormatFlags.Bottom | TextFormatFlags.Right;
-                    break;
-            }
-
-            return controlFlags;
-        }
-
-        #endregion
     }
 }

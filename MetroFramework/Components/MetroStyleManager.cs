@@ -1,9 +1,9 @@
-﻿/*
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
  
-MetroFramework - Modern UI for WinForms
+MetroFramework - Windows Modern UI for .NET WinForms applications
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
-Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in the 
@@ -23,11 +23,17 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  
  */
+#endregion
 
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 
 namespace MetroFramework.Components
@@ -66,24 +72,26 @@ namespace MetroFramework.Components
     public sealed class MetroStyleManager : Component, ISupportInitialize, IMetroComponent, IMetroStyledComponent
     {
 
-        public static readonly MetroStyleManager Default = new MetroStyleManager();
+        #region Properties
+
+        internal const string AMBIENT_VALUE = "";
 
         // The name of the Style property as it is used throughout MetroFramework
         internal const string STYLE_PROPERTY_NAME = "Style";
 
-        private MetroColorStyle _metroStyle = MetroColorStyle.Default;
-        [DefaultValue(MetroColorStyle.Default)]
+        private string _metroStyle = AMBIENT_VALUE;
+        [DefaultValue(AMBIENT_VALUE)]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroColorStyle Style
+        public string Style
         {
             get
             {
-                return (DesignMode || _metroStyle != MetroColorStyle.Default) ? _metroStyle : _styleManager.Style ;
+                return (DesignMode || _metroStyle != AMBIENT_VALUE) ? _metroStyle : _styleManager.Style ;
             }
             set
             {
                 // The singleton instance must always have a non-default value
-                if (_styleManager == null && value == MetroColorStyle.Default) value = MetroDefaults.Style;
+                if (_styleManager == null && value == AMBIENT_VALUE) value = Styles.DefaultStyle.Name;
 
                 bool changed = Style != value;
                 _metroStyle = value;
@@ -94,19 +102,19 @@ namespace MetroFramework.Components
         // The name of the Theme property as it is used throughout MetroFramework
         internal const string THEME_PROPERTY_NAME = "Theme";
 
-        private MetroThemeStyle _metroTheme = MetroThemeStyle.Default;
-        [DefaultValue(MetroThemeStyle.Default)]
+        private string _metroTheme = AMBIENT_VALUE;
+        [DefaultValue(AMBIENT_VALUE)]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroThemeStyle Theme
+        public string Theme
         {
             get
             {
-                return (DesignMode || _metroTheme != MetroThemeStyle.Default) ? _metroTheme : _styleManager.Theme ;
+                return (DesignMode || _metroTheme != AMBIENT_VALUE) ? _metroTheme : _styleManager.Theme;
             }
             set
             {
                 // The singleton instance must always have a non-default value
-                if (_styleManager == null && value == MetroThemeStyle.Default) value = MetroDefaults.Theme;
+                if (_styleManager == null && value == AMBIENT_VALUE) value = Styles.DefaultTheme.Name;
 
                 bool changed = Theme != value;
                 _metroTheme = value;
@@ -131,6 +139,46 @@ namespace MetroFramework.Components
             }
         }
 
+        /// <summary>
+        ///     The container control (e.g. form or user control) this style manager is managing.
+        /// </summary>
+        private IMetroContainerControl _owner;
+
+        [ImmutableObject(true)]
+        public IMetroContainerControl Owner
+        {
+            get { return _owner; }
+            set
+            {
+                // We attach to ControlAdded to propagate styles to dynamically added controls
+
+                if (_owner != null)
+                {
+                    if (_owner.StyleManager == this) _owner.StyleManager = null;
+                    ContainerControl cc = _owner as ContainerControl;
+                    if (cc != null) cc.ControlAdded -= ControlAdded;
+                }
+
+                _owner = value;
+
+                if (value != null)
+                {
+                    value.StyleManager = this;
+                    ContainerControl cc = _owner as ContainerControl;
+                    if (cc != null) cc.ControlAdded += ControlAdded;
+
+                    if (!isInitializing)
+                    {
+                        UpdateControl((Control)value);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Events
+
         public event EventHandler MetroStyleChanged;
 
         private void OnMetroStyleChanged(object sender, EventArgs e)
@@ -143,6 +191,10 @@ namespace MetroFramework.Components
             }
         }
 
+        #endregion
+
+        #region Ctors & Dispose
+
         public MetroStyleManager()
         {
             _styleManager = Default;
@@ -150,10 +202,10 @@ namespace MetroFramework.Components
             {
                 _styleManager.MetroStyleChanged += OnMetroStyleChanged;
             }
-            else // we are the singleton instance - provide actua defaults here
+            else // we are the singleton instance - provide actual defaults here
             {
-                _metroTheme = MetroDefaults.Theme;
-                _metroStyle = MetroDefaults.Style;
+                _metroTheme = Styles.DefaultTheme.Name;
+                _metroStyle = Styles.DefaultStyle.Name;
             }
         }
 
@@ -177,18 +229,12 @@ namespace MetroFramework.Components
         {
             if (parentContainer != null)
             {
-                this._parentContainer = parentContainer;
-                this._parentContainer.Add(this);
+                _parentContainer = parentContainer;
+                _parentContainer.Add(this);
             }
         }
 
-        //// Used by the designer to reset child controls in a container
-        //internal void ResetDefaults()
-        //{
-        //    if( _styleManager == null) return; // the singleton instance
-        //    _metroTheme = MetroThemeStyle.Default;
-        //    _metroStyle = MetroColorStyle.Default;
-        //}
+        #endregion
 
         #region ISupportInitialize
 
@@ -211,43 +257,9 @@ namespace MetroFramework.Components
 
         #endregion
 
-        /// <summary>
-        ///     The container control (e.g. form or user control) this style manager is managing.
-        /// </summary>
-        private IMetroContainerControl _owner;
+        #region Style updates
 
-        [ImmutableObject(true)]
-        public IMetroContainerControl Owner
-        {
-            get { return _owner; }
-            set
-            {
-                // We attach to ControlAdded to propagate styles to dynamically added controls
-
-                if (_owner != null) 
-                {
-                    if ( _owner.StyleManager == this) _owner.StyleManager = null;
-                    ContainerControl cc = _owner as ContainerControl;
-                    if( cc != null ) cc.ControlAdded -= ControlAdded;
-                }
-
-                _owner = value;
-
-                if (value != null)
-                {
-                    value.StyleManager = this;
-                    ContainerControl cc = _owner as ContainerControl;
-                    if (cc != null) cc.ControlAdded += ControlAdded;
-
-                    if (!isInitializing)
-                    {
-                        UpdateControl((Control)value);
-                    }
-                }
-            }
-        }
-
-         private void ControlAdded(object sender, ControlEventArgs e)
+        private void ControlAdded(object sender, ControlEventArgs e)
         {
             if (!isInitializing)
             {
@@ -268,13 +280,10 @@ namespace MetroFramework.Components
             }
 
             // propagate style information to components, i.e. MetroStyleExtender
-            foreach (Object obj in _parentContainer.Components)
-            {
-                // avoid infinite loops
-                if (ReferenceEquals(obj, this)) continue;
-                IMetroStyledComponent c = obj as IMetroStyledComponent;
-                if (c != null) c.InternalStyleManager = this;
-            }
+            var stylesComponents = _parentContainer.Components.Cast<object>()
+                                                   .Where(obj => !ReferenceEquals(obj, this))
+                                                   .OfType<IMetroStyledComponent>();
+            foreach (var c in stylesComponents) c.InternalStyleManager = this;
         }
 
         private void UpdateControl(Control control)
@@ -284,7 +293,7 @@ namespace MetroFramework.Components
                 return;
             }
 
-            // If a container conrol is exposing a Style Manager, we link to it
+            // If a container control is exposing a Style Manager, we link to it
             // but do not access the container's children.
             IMetroContainerControl container = control as IMetroContainerControl;
             if (container != null && container.StyleManager != null && !ReferenceEquals(this, container.StyleManager))
@@ -326,5 +335,160 @@ namespace MetroFramework.Components
 
         }
 
+        #endregion
+
+        //[Guid("04A72314-32E9-48E2-9B87-A63603454F3E")]
+        //private interface _DTE
+        //{
+        //}
+
+        private static MetroStyles _styles;
+
+        public static MetroStyles Styles
+        {
+            get { return _styles;  }
+            internal set
+            {
+                _styles = value;
+                Default.OnMetroStyleChanged(Default, new EventArgs());
+            }
+        }
+
+        // must be initialized after loading the styles
+        public static readonly MetroStyleManager Default;
+
+        static MetroStyleManager()
+        {
+            try
+            {
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, MetroStyles.THEMES_XML);
+                Trace.WriteLine(path);
+                if (File.Exists(path))
+                {
+                    _styles = MetroStyles.Create(path);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
+
+            try
+            {
+                _styles = MetroStyles.Create();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+
+            Default = new MetroStyleManager();
+        }
+
+
+        public Color GetStyleColor()
+        {
+            Debug.Assert(Style!=null);
+            MetroStyles.Style style;
+            if (!Styles.Styles.TryGetValue(Style, out style)) style = Styles.DefaultStyle;
+            return style.Color;
+        }
+
+        /// <summary>
+        ///     Get a property from the themes database.
+        /// </summary>
+        /// <remarks>
+        ///     If <paramref name="property"/> is fully qualified, i.e. has at least 2 dots in it 
+        ///     (e.g "Form.BackColor.Normal"), a single attempt to retrieve this property is made 
+        ///     and the other parameters remain unused.
+        ///     Otherwise, this method tries to retrieve a property, first by comnining 
+        ///     "{category}.{property}.{state}", then "*.{property}.{state}".
+        /// </remarks>
+        /// <returns><c>NULL</c> if the property could not be found.</returns>
+        public bool TryGetThemeProperty<T>(string property, out T value, string state = "*", string category = "*")
+        {
+            if (state == null) throw new ArgumentNullException();
+            if (category == null) throw new ArgumentNullException();
+            Debug.Assert(Theme != null);
+
+            // TODO: cache lookups
+
+            MetroStyles.Theme theme;
+            if (!Styles.Themes.TryGetValue(Theme, out theme)) theme = Styles.DefaultTheme;
+
+            int dots = property.Count(c => c == '.');
+            Debug.Assert(dots > 1 || (category != null && state != null));
+
+            // Fully-qualified property name
+            if (dots > 1) return theme.TryGetValue(property, out value);
+
+            // Try Category.Property.State, avoid *.Property.*
+            if (state != "*" && category != "*" && theme.TryGetValue(category + "." + property + "." + state, out value))
+                return true;
+
+            // Try Category.Property.*, if we have a category  (i.e. avoid *.Property.*)
+            if (category != "*" && theme.TryGetValue(category + "." + property + ".*", out value))
+                return true;
+
+            // eliminate subcontrol specifiers and try the lookup again
+            if (dots == 1)
+                return TryGetThemeProperty(property.Substring(property.LastIndexOf('.') + 1), out value, state, category);
+
+            // Try *.Property.State, if we have a state (i.e. avoid *.Property.*)
+            if (state != "*" && theme.TryGetValue("*." + property + "." + state, out value))
+                return true;
+
+            // Try *.Property.* and give up if it wasn't found
+            return theme.TryGetValue("*." + property + ".*", out value);
+        }
+
+
+        /// <summary>
+        ///     Get a property from the themes database.
+        /// </summary>
+        /// <remarks>
+        ///     If <paramref name="property"/> is fully qualified, i.e. has at least 2 dots in it 
+        ///     (e.g "Form.BackColor.Normal"), a single attempt to retrieve this property is made 
+        ///     and the other parameters remain unused.
+        ///     Otherwise, this method tries to retrieve a property, first by comnining 
+        ///     "{category}.{property}.{state}", then "*.{property}.{state}".
+        /// </remarks>
+        /// <param name="property"></param>
+        /// <param name="state"></param>
+        /// <param name="category"></param>
+        /// <returns><c>NULL</c> if the property could not be found.</returns>
+        [Obsolete]
+        public object GetThemeProperty(string property, string state = "*", string category = "*")
+        {
+            object result;
+            return TryGetThemeProperty(property, out result, state, category) ? result : null;
+        }
+
+        public Color GetThemeColor(string property, string state = "*", string category = "*")
+        {
+            object o;
+            if( TryGetThemeProperty(property, out o, state, category) && o is Color) 
+                return (Color)o;
+            Trace.WriteLine(String.Format("({0}, {1}, {2}): Color lookup failed.", property, category, state));
+            return Color.DeepPink;
+        }
+
+        public Font GetThemeFont(MetroFontSize size, MetroFontWeight weight, string category = "*")
+        {
+            float fontSize;
+            if (!TryGetThemeProperty("FontSize", out fontSize, size.ToString(), category))
+                fontSize = MetroDefaults.FontSize;
+
+            string fontFamily;
+            if (!TryGetThemeProperty("FontFamily", out fontFamily, weight.ToString(), category))
+                fontFamily = MetroDefaults.FontFamily;
+
+            FontStyle fontStyle;
+            if (!TryGetThemeProperty("FontStyle", out fontStyle, weight.ToString(), category))
+                fontStyle = MetroDefaults.FontStyle;
+
+            return MetroFonts.ResolveFont(fontFamily, fontSize, fontStyle);
+        }
     }
 }

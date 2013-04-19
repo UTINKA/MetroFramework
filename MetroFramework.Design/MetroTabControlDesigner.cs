@@ -163,7 +163,7 @@ namespace MetroFramework.Design
             base.WndProc(ref m);
             switch (m.Msg)
             {
-                case (int)WinApi.Messages.WM_NCHITTEST:
+                case WinApi.Messages.WM_NCHITTEST:
                     if (m.Result.ToInt32() == (int)WinApi.HitTest.HTTRANSPARENT)
                     {
                         m.Result = (IntPtr) WinApi.HitTest.HTCLIENT;
@@ -222,8 +222,8 @@ namespace MetroFramework.Design
             properties.Remove("ImageList");
             properties.Remove("TextImageRelation");
 
-            properties.Remove("BackgroundImage");
-            properties.Remove("BackgroundImageLayout");
+//            properties.Remove("BackgroundImage");
+ //           properties.Remove("BackgroundImageLayout");
             properties.Remove("UseVisualStyleBackColor");
 
             properties.Remove("Font");

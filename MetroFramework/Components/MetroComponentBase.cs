@@ -1,5 +1,6 @@
 ﻿ 
  
+ 
 /**************************************************************************************
 
                         GENERATED FILE - DO NOT EDIT
@@ -9,7 +10,7 @@
  
 MetroFramework - Modern UI for WinForms
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
@@ -34,7 +35,9 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Drawing;
 using MetroFramework.Components;
+using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 
 namespace MetroFramework.Components
@@ -88,23 +91,64 @@ namespace MetroFramework.Components
 
 		#region Properties
 
-        [DefaultValue(MetroThemeStyle.Default)]
+        [DefaultValue(MetroStyleManager.AMBIENT_VALUE)]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroThemeStyle Theme
+        public string Theme
         {
             get { return _styleManager.Theme; }
             set { _styleManager.Theme = value; }
         }
 
-		[DefaultValue(MetroColorStyle.Default)]
+		[DefaultValue(MetroStyleManager.AMBIENT_VALUE)]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroColorStyle Style
+        public string Style
         {
             get { return _styleManager.Style; }
             set { _styleManager.Style = value; }
         }
 
 		#endregion
+
+		protected virtual string MetroControlCategory { get { return "Component"; } }
+
+		protected virtual string MetroControlState { get { return "Normal"; } }
+
+		protected virtual bool TryGetThemeProperty<T>(string property, out T value, string state = null, string category = null) 
+		{
+			return _styleManager.TryGetThemeProperty(property, out value, state ?? MetroControlState, category ?? MetroControlCategory);
+		}
+
+		[Obsolete]
+		protected virtual object GetThemeProperty(string property) 
+		{
+			return _styleManager.GetThemeProperty(property, MetroControlState, MetroControlCategory);
+		}
+
+		protected virtual Color GetThemeColor(string property)
+		{
+			return _styleManager.GetThemeColor(property, MetroControlState, MetroControlCategory);
+		}
+
+        protected virtual Font GetThemeFont()
+        {
+			return GetThemeFont(MetroFontSize.Default, MetroFontWeight.Default);
+		}
+
+        protected Font GetThemeFont(MetroFontSize size, MetroFontWeight weight)
+        {
+            if (size == MetroFontSize.Default && !TryGetThemeProperty("MetroFontSize", out size) )
+                size = MetroDefaults.MetroFontSize;
+
+            if (weight == MetroFontWeight.Default && !TryGetThemeProperty("MetroFontWeight", out weight))
+                weight = MetroDefaults.MetroFontWeight;
+
+            return _styleManager.GetThemeFont(size, weight, MetroControlCategory);
+        }
+		
+		protected virtual Color GetStyleColor()
+		{
+			return _styleManager.GetStyleColor();
+		}
 
     }
 
@@ -156,23 +200,64 @@ namespace MetroFramework.Components
 
 		#region Properties
 
-        [DefaultValue(MetroThemeStyle.Default)]
+        [DefaultValue(MetroStyleManager.AMBIENT_VALUE)]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroThemeStyle Theme
+        public string Theme
         {
             get { return _styleManager.Theme; }
             set { _styleManager.Theme = value; }
         }
 
-		[DefaultValue(MetroColorStyle.Default)]
+		[DefaultValue(MetroStyleManager.AMBIENT_VALUE)]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroColorStyle Style
+        public string Style
         {
             get { return _styleManager.Style; }
             set { _styleManager.Style = value; }
         }
 
 		#endregion
+
+		protected virtual string MetroControlCategory { get { return "ToolTip"; } }
+
+		protected virtual string MetroControlState { get { return "Normal"; } }
+
+		protected virtual bool TryGetThemeProperty<T>(string property, out T value, string state = null, string category = null) 
+		{
+			return _styleManager.TryGetThemeProperty(property, out value, state ?? MetroControlState, category ?? MetroControlCategory);
+		}
+
+		[Obsolete]
+		protected virtual object GetThemeProperty(string property) 
+		{
+			return _styleManager.GetThemeProperty(property, MetroControlState, MetroControlCategory);
+		}
+
+		protected virtual Color GetThemeColor(string property)
+		{
+			return _styleManager.GetThemeColor(property, MetroControlState, MetroControlCategory);
+		}
+
+        protected virtual Font GetThemeFont()
+        {
+			return GetThemeFont(MetroFontSize.Default, MetroFontWeight.Default);
+		}
+
+        protected Font GetThemeFont(MetroFontSize size, MetroFontWeight weight)
+        {
+            if (size == MetroFontSize.Default && !TryGetThemeProperty("MetroFontSize", out size) )
+                size = MetroDefaults.MetroFontSize;
+
+            if (weight == MetroFontWeight.Default && !TryGetThemeProperty("MetroFontWeight", out weight))
+                weight = MetroDefaults.MetroFontWeight;
+
+            return _styleManager.GetThemeFont(size, weight, MetroControlCategory);
+        }
+		
+		protected virtual Color GetStyleColor()
+		{
+			return _styleManager.GetStyleColor();
+		}
 
     }
 

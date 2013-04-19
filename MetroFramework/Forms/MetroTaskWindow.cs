@@ -158,7 +158,6 @@ namespace MetroFramework.Forms
                 timer = DelayedCall.Start(UpdateProgress, 5);
         }
 
-
         private bool isInitialized = false;
         protected override void OnActivated(EventArgs e)
         {
@@ -211,7 +210,7 @@ namespace MetroFramework.Forms
         {
             base.OnPaint(e);
 
-            using (SolidBrush b = new SolidBrush(MetroPaint.BackColor.Form(Theme)))
+            using (SolidBrush b = new SolidBrush(EffectiveBackColor))
             {
                 e.Graphics.FillRectangle(b, new Rectangle(Width - progressWidth, 0, progressWidth, 5));
             }
@@ -239,7 +238,6 @@ namespace MetroFramework.Forms
             if (!cancelTimer)
                 timer.Reset();
         }
-
 
     }
 }

@@ -24,6 +24,7 @@
 using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms.Design;
+using MetroFramework.Controls;
 
 namespace MetroFramework.Design
 {
@@ -37,10 +38,10 @@ namespace MetroFramework.Design
             }
         }
 
-        public override bool CanParent(System.Windows.Forms.Control control)
-        {
-            return (control is Controls.MetroLabel || control is Controls.MetroProgressSpinner);
-        }
+        //public override bool CanParent(System.Windows.Forms.Control control)
+        //{
+        //    return (control is MetroLabel || control is MetroProgressSpinner);
+        //}
 
         protected override void PreFilterProperties(IDictionary properties)
         {

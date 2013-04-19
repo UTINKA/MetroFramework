@@ -21,11 +21,22 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-using MetroFramework.Components;
+
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace MetroFramework.Interfaces
 {
     public interface IMetroControl :  IMetroComponent
     {
+        Color EffectiveBackColor { get; }
+        Color EffectiveForeColor { get; }
+
+        event PaintEventHandler UserPaint;
     }
+
+    //public interface IMetroAmbientOverride : IMetroControl
+    //{
+        
+    //}
 }

@@ -1,8 +1,9 @@
-﻿/*
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
  
-MetroFramework - Modern UI for WinForms
+MetroFramework - Windows Modern UI for .NET WinForms applications
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in the 
@@ -22,26 +23,44 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  
  */
+#endregion
+
 
 using System;
-using System.Collections.Generic;
+using System.Drawing;
+using MetroFramework.Drawing;
+using MetroFramework.Forms;
 
 namespace MetroFramework
 {
     internal static class MetroDefaults
     {
-        // NOTE: Do NOT set to MetroThemeStyle.Default !
-        public const MetroThemeStyle Theme = MetroThemeStyle.Light;
+        // NOTE: Do NOT set to MetroStyleManager.AMBIENT_VALUE !
+        public const string Theme = "Light";
 
-        // NOTE: Do NOT set to MetroColorStyle.Default !
-        public const MetroColorStyle Style = MetroColorStyle.Blue;
+        // NOTE: Do NOT set to MetroStyleManager.AMBIENT_VALUE !
+        public const string Style = "Blue";
+
+        public const MetroBorderStyle BorderStyle = MetroBorderStyle.None;
+
+        // This will massively reduce flicker by disabling redrawing during resize
+        public static bool FormSuspendLayoutDuringResize = false;
+
+        public const MetroForm.MetroFormShadowType FormShadowType = MetroForm.MetroFormShadowType.SystemAeroShadow;
+
+        public static bool DrawFocusRectangle = false;
+
+        // Font fallbacks
+        public const MetroFontSize MetroFontSize = MetroFramework.Drawing.MetroFontSize.Medium;
+        public const MetroFontWeight MetroFontWeight = MetroFramework.Drawing.MetroFontWeight.Regular;
+        public static readonly string FontFamily = SystemFonts.DefaultFont.Name;
+        public static readonly FontStyle FontStyle = SystemFonts.DefaultFont.Style;
+        public const float FontSize = 14f;
 
         // Categories
 
         public const string CatAppearance = "Metro Appearance";
-
         public const string CatBehavior = "Metro Behavior";
-
 
     }
 }

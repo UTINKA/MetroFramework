@@ -120,6 +120,7 @@ namespace MetroFramework.Components
 
             if (control is IMetroControl)
             {
+                // TODO: This would override tooltips on children
                 foreach (Control c in control.Controls)
                 {
                     SetToolTip(c, caption);
@@ -140,23 +141,17 @@ namespace MetroFramework.Components
 
         private void MetroToolTip_Draw(object sender, DrawToolTipEventArgs e)
         {
-            MetroThemeStyle displayTheme = (Theme == MetroThemeStyle.Light) ? MetroThemeStyle.Dark : MetroThemeStyle.Light;
-
-            Color backColor = MetroPaint.BackColor.Form(displayTheme);
-            Color borderColor = MetroPaint.BorderColor.Button.Normal(displayTheme);
-            Color foreColor = MetroPaint.ForeColor.Label.Normal(displayTheme);
-
-            using (SolidBrush b = new SolidBrush(backColor))
+            using (SolidBrush b = new SolidBrush(GetThemeColor("BackColor")))
             {
                 e.Graphics.FillRectangle(b, e.Bounds);
             }
-            using (Pen p = new Pen(borderColor))
+            using (Pen p = new Pen(GetThemeColor("BorderColor")))
             {
                 e.Graphics.DrawRectangle(p, new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1));
             }
 
-            Font f = MetroFonts.Default(13f);
-            TextRenderer.DrawText(e.Graphics, e.ToolTipText, f, e.Bounds, foreColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            TextRenderer.DrawText(e.Graphics, e.ToolTipText, GetThemeFont(), e.Bounds, GetThemeColor("ForeColor"), 
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
         #endregion

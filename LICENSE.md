@@ -1,8 +1,6 @@
-MetroFramework - Modern UI for WinForms
+MetroFramework - Windows Modern UI for .NET WinForms Applications
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/MetroFramework
-
-Portions of this software are Copyright (c) 2011 Sven Walter, http://github.com/viperneo
+Copyright (c) 2013 Jens Thiel, http://thielj.github.com/MetroFramework
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in the 
@@ -20,3 +18,5 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo

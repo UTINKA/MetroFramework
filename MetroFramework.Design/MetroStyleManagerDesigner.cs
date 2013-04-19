@@ -1,8 +1,9 @@
-﻿/*
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
  
-MetroFramework - Modern UI for WinForms
+MetroFramework - Windows Modern UI for .NET WinForms applications
 
-Copyright (c) 2013 Jens Thiel, http://github.com/thielj/winforms-modernui
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in the 
@@ -22,13 +23,18 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  
  */
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using MetroFramework.Components;
+using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
 
 namespace MetroFramework.Design
@@ -75,6 +81,28 @@ namespace MetroFramework.Design
             }
         }
 
+        public override void Initialize(IComponent component)
+        {
+            base.Initialize(component);
+
+            var dte = (EnvDTE.DTE)GetService(typeof(EnvDTE.DTE));
+            if (dte != null && dte.Solution != null && dte.Solution.Saved )
+            {
+                string folder = Path.GetDirectoryName(Path.GetFullPath(dte.Solution.FileName));
+                string path = Path.Combine(folder, MetroStyles.THEMES_XML);
+                if (!File.Exists(path)) return;
+                try
+                {
+                    var db = MetroStyles.Create(path);
+                    if (db != null) MetroStyleManager.Styles = db;
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+        }
+
         private void OnResetStyles(object sender, EventArgs args)
         {
             //DesignerVerb dv = (DesignerVerb)sender;
@@ -99,8 +127,8 @@ namespace MetroFramework.Design
 
              if (control is IMetroStyledComponent)
             {
-                ResetProperty(control, MetroStyleManager.THEME_PROPERTY_NAME, MetroThemeStyle.Default);
-                ResetProperty(control, MetroStyleManager.STYLE_PROPERTY_NAME, MetroColorStyle.Default);
+                ResetProperty(control, MetroStyleManager.THEME_PROPERTY_NAME, MetroStyleManager.AMBIENT_VALUE);
+                ResetProperty(control, MetroStyleManager.STYLE_PROPERTY_NAME, MetroStyleManager.AMBIENT_VALUE);
             }
 
             if (control.ContextMenuStrip != null) ResetStyles(styleManager, control.ContextMenuStrip);

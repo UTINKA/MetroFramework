@@ -1,34 +1,43 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 using MetroFramework.Components;
 using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
+using MetroFramework.Native;
 
 namespace MetroFramework.Controls
 {
@@ -36,26 +45,9 @@ namespace MetroFramework.Controls
     [ToolboxBitmap(typeof(ProgressBar))]
     public class MetroProgressBar : MetroProgressBarBase
     {
+        // TODO: Transparency?
 
-        #region Fields
-
-        private MetroProgressBarSize metroLabelSize = MetroProgressBarSize.Medium;
-        [DefaultValue(MetroProgressBarSize.Medium)]
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroProgressBarSize FontSize
-        {
-            get { return metroLabelSize; }
-            set { metroLabelSize = value; }
-        }
-
-        private MetroProgressBarWeight metroLabelWeight = MetroProgressBarWeight.Light;
-        [DefaultValue(MetroProgressBarWeight.Light)]
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroProgressBarWeight FontWeight
-        {
-            get { return metroLabelWeight; }
-            set { metroLabelWeight = value; }
-        }
+        #region Properties
 
         private ContentAlignment textAlign = ContentAlignment.MiddleRight;
         [DefaultValue(ContentAlignment.MiddleRight)]
@@ -63,7 +55,7 @@ namespace MetroFramework.Controls
         public ContentAlignment TextAlign
         {
             get { return textAlign; }
-            set { textAlign = value; }
+            set { textAlign = value; Invalidate(); }
         }
 
         private bool hideProgressText = true;
@@ -72,7 +64,7 @@ namespace MetroFramework.Controls
         public bool HideProgressText
         {
             get { return hideProgressText; }
-            set { hideProgressText = value; }
+            set { hideProgressText = value; Invalidate(); }
         }
 
         private ProgressBarStyle progressBarStyle = ProgressBarStyle.Continuous;
@@ -81,7 +73,7 @@ namespace MetroFramework.Controls
         public ProgressBarStyle ProgressBarStyle
         {
             get { return progressBarStyle; }
-            set { progressBarStyle = value; }
+            set { progressBarStyle = value; Invalidate(); }
         }
 
         public new int Value
@@ -120,8 +112,6 @@ namespace MetroFramework.Controls
 
         #endregion
 
-        #region Constructor
-
         public MetroProgressBar()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
@@ -130,27 +120,33 @@ namespace MetroFramework.Controls
                      ControlStyles.UserPaint, true);
         }
 
-        #endregion
-
         #region Paint Methods
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void WndProc(ref Message m)
         {
-            base.OnPaint(e);
-
-            Color backColor;
-
-            if (!Enabled)
+            if (m.Msg == WinApi.Messages.WM_NCCALCSIZE && (int)m.WParam != 0)
             {
-                backColor = MetroPaint.BackColor.ProgressBar.Bar.Disabled(Theme);
+                m.Result = (IntPtr)0;
+                return;
             }
-            else
+            base.WndProc(ref m);
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            try
             {
-                backColor = MetroPaint.BackColor.ProgressBar.Bar.Normal(Theme);
+                e.Graphics.Clear(EffectiveBackColor);
             }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+                Invalidate();
+            }
+        }
 
-            e.Graphics.Clear(backColor);
-
+        protected override void OnPaintForeground(PaintEventArgs e)
+        {
             if (progressBarStyle == ProgressBarStyle.Continuous)
             {
                 if (!DesignMode) StopTimer();
@@ -181,7 +177,7 @@ namespace MetroFramework.Controls
 
             DrawProgressText(e.Graphics);
 
-            using (Pen p = new Pen(MetroPaint.BorderColor.ProgressBar.Normal(Theme)))
+            using (Pen p = new Pen(GetThemeColor("BorderColor")))
             {
                 Rectangle borderRect = new Rectangle(0, 0, Width - 1, Height - 1);
                 e.Graphics.DrawRectangle(p, borderRect);
@@ -190,51 +186,20 @@ namespace MetroFramework.Controls
 
         private void DrawProgressContinuous(Graphics graphics)
         {
-            graphics.FillRectangle(MetroPaint.GetStyleBrush(Style), 0, 0, (int)ProgressBarWidth, ClientRectangle.Height);
+            graphics.FillRectangle(new SolidBrush(GetStyleColor()), 0, 0, (int)ProgressBarWidth, ClientRectangle.Height);
         }
 
         private int marqueeX = 0;
 
         private void DrawProgressMarquee(Graphics graphics)
         {
-            graphics.FillRectangle(MetroPaint.GetStyleBrush(Style), marqueeX, 0, ProgressBarMarqueeWidth, ClientRectangle.Height);
+            graphics.FillRectangle(new SolidBrush(GetStyleColor()), marqueeX, 0, ProgressBarMarqueeWidth, ClientRectangle.Height);
         }
 
         private void DrawProgressText(Graphics graphics)
         {
             if (HideProgressText) return;
-
-            Color foreColor;
-            Color backColor = Color.Transparent;
-
-            if (!Enabled)
-            {
-                foreColor = MetroPaint.ForeColor.ProgressBar.Disabled(Theme);
-            }
-            else
-            {
-                foreColor = MetroPaint.ForeColor.ProgressBar.Normal(Theme);
-            }
-           
-            TextRenderer.DrawText(graphics, ProgressPercentText, MetroFonts.ProgressBar(metroLabelSize, metroLabelWeight), ClientRectangle, foreColor, backColor, MetroPaint.GetTextFormatFlags(TextAlign));
-        }
-
-        #endregion
-
-        #region Overridden Methods
-
-        public override Size GetPreferredSize(Size proposedSize)
-        {
-            Size preferredSize;
-            base.GetPreferredSize(proposedSize);
-
-            using (var g = CreateGraphics())
-            {
-                proposedSize = new Size(int.MaxValue, int.MaxValue);
-                preferredSize = TextRenderer.MeasureText(g, ProgressPercentText, MetroFonts.ProgressBar(metroLabelSize, metroLabelWeight), proposedSize, MetroPaint.GetTextFormatFlags(TextAlign));
-            }
-
-            return preferredSize;
+            TextRenderer.DrawText(graphics, ProgressPercentText, EffectiveFont, ClientRectangle, EffectiveForeColor, TextAlign.AsTextFormatFlags() | TextFormatFlags.EndEllipsis);
         }
 
         #endregion
@@ -250,9 +215,8 @@ namespace MetroFramework.Controls
 
             if (marqueeTimer == null)
             {
-                marqueeTimer = new Timer();
-                marqueeTimer.Interval = 10;
-                marqueeTimer.Tick += new EventHandler(marqueeTimer_Tick);
+                marqueeTimer = new Timer {Interval = 10};
+                marqueeTimer.Tick += marqueeTimer_Tick;
             }
 
             marqueeX = -ProgressBarMarqueeWidth;

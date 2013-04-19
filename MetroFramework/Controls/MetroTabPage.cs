@@ -1,26 +1,32 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,22 +34,19 @@ using System.Drawing;
 using System.Security;
 using System.Windows.Forms;
 
-using MetroFramework.Interfaces;
-using MetroFramework.Drawing;
-using MetroFramework.Components;
 using MetroFramework.Native;
 
 namespace MetroFramework.Controls
 {
     [ToolboxItem(false)]
     [Designer("MetroFramework.Design.MetroTabPageDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
-    public class MetroTabPage : MetroTabPageBase
+    public partial class MetroTabPage : MetroTabPageBase
     {
 
         #region Fields
 
-        private MetroScrollBar verticalScrollbar = new MetroScrollBar(MetroScrollOrientation.Vertical);
-        private MetroScrollBar horizontalScrollbar = new MetroScrollBar(MetroScrollOrientation.Horizontal);
+        private readonly MetroScrollBar verticalScrollbar = new MetroScrollBar(MetroScrollOrientation.Vertical);
+        private readonly MetroScrollBar horizontalScrollbar = new MetroScrollBar(MetroScrollOrientation.Horizontal);
 
         private bool showHorizontalScrollbar = false;
         [DefaultValue(false)]
@@ -130,30 +133,21 @@ namespace MetroFramework.Controls
             }
         }
 
-        private bool useCustomBackground = false;
-        [DefaultValue(false)]
-        [Category(MetroDefaults.CatAppearance)]
-        public bool CustomBackground
-        {
-            get { return useCustomBackground; }
-            set { useCustomBackground = value; }
-        }
-
         #endregion
 
         #region Constructor
 
         public MetroTabPage()
         {
-            SetStyle(ControlStyles.UserPaint |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.SupportsTransparentBackColor, true);
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+                     //ControlStyles.AllPaintingInWmPaint |
+                     //ControlStyles.ResizeRedraw |
+            UseTransparency();
 
             Controls.Add(verticalScrollbar);
             Controls.Add(horizontalScrollbar);
 
+            // TODO: these conflict with the default property values !!
             verticalScrollbar.UseBarColor = true;
             horizontalScrollbar.UseBarColor = true;
 
@@ -181,17 +175,8 @@ namespace MetroFramework.Controls
 
         #region Overridden Methods
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void OnPaintForeground(PaintEventArgs e)
         {
-            base.OnPaint(e);
-
-            Color backColor = MetroPaint.BackColor.Form(Theme);
-
-            if (useCustomBackground)
-                backColor = BackColor;
-
-            e.Graphics.Clear(backColor);
-
             if (DesignMode)
             {
                 horizontalScrollbar.Visible = false;
@@ -241,7 +226,8 @@ namespace MetroFramework.Controls
 
             if (!DesignMode)
             {
-                WinApi.ShowScrollBar(Handle, (int)WinApi.ScrollBar.SB_BOTH, 0);
+                // TODO: We must make sure we don't call this while receiving a scrollbar message !!!
+                WinApi.ShowScrollBar(Handle, WinApi.ScrollBar.Both, 0);
             }
         }
 
@@ -262,28 +248,19 @@ namespace MetroFramework.Controls
                 horizontalScrollbar.Visible = false;
                 return;
             }
-            if (VerticalScrollbar)
-            {
-                if (VerticalScroll.Visible)
-                {
-                    verticalScrollbar.Location = new Point(ClientRectangle.Width - verticalScrollbar.Width, ClientRectangle.Y);
-                    verticalScrollbar.Height = ClientRectangle.Height;
-                }
-            }
-            else
+
+            verticalScrollbar.Location = new Point(ClientRectangle.Width - verticalScrollbar.Width, ClientRectangle.Y);
+            verticalScrollbar.Height = ClientRectangle.Height;
+
+            if (!VerticalScrollbar)
             {
                 verticalScrollbar.Visible = false;
             }
 
-            if (HorizontalScrollbar)
-            {
-                if (HorizontalScroll.Visible)
-                {
-                    horizontalScrollbar.Location = new Point(ClientRectangle.X, ClientRectangle.Height - horizontalScrollbar.Height);
-                    horizontalScrollbar.Width = ClientRectangle.Width;
-                }
-            }
-            else
+            horizontalScrollbar.Location = new Point(ClientRectangle.X, ClientRectangle.Height - horizontalScrollbar.Height);
+            horizontalScrollbar.Width = ClientRectangle.Width;
+
+            if (!HorizontalScrollbar)
             {
                 horizontalScrollbar.Visible = false;
             }

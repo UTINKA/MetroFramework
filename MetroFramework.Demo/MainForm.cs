@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
+using System.Linq;
 using System.Windows.Forms;
 using MetroFramework.Components;
 using MetroFramework.Forms;
@@ -18,14 +19,30 @@ namespace MetroFramework.Demo
 
         private void metroTileSwitch_Click(object sender, EventArgs e)
         {
-            var m = new Random();
-            int next = m.Next(0, 13);
-            metroStyleManager.Style = (MetroColorStyle)next;
+            metroTileSwitch.TileCount++;
+            Random rng = new Random();
+            var styles = MetroStyleManager.Styles.Styles.Keys;
+            while (true)
+            {
+                string newStyle = styles.ElementAt(rng.Next(styles.Count));
+                if (newStyle == metroStyleManager.Style) continue;
+                metroStyleManager.Style = newStyle;
+                return;
+            }
         }
 
         private void metroTile1_Click(object sender, EventArgs e)
         {
-            metroStyleManager.Theme = metroStyleManager.Theme == MetroThemeStyle.Light ? MetroThemeStyle.Dark : MetroThemeStyle.Light;
+            metroTile1.TileCount++;
+            var rng = new Random();
+            var themes = MetroStyleManager.Styles.Themes.Keys;
+            while (true)
+            {
+                string newTheme = themes.ElementAt(rng.Next(themes.Count));
+                if( newTheme == metroStyleManager.Theme) continue;
+                metroStyleManager.Theme = newTheme;
+                return;
+            }
         }
 
         // I'm deliberately NOT using a Forms timer to have callbacks from the "wrong" thread
@@ -34,18 +51,18 @@ namespace MetroFramework.Demo
         private void EnsureTimer()
         {
              if(timer != null ) return;
-            timer = new System.Threading.Timer(Callback);
+            timer = new System.Threading.Timer(RandomizeGlobalStyles);
         }
 
-        private void Callback(object state)
+        private void RandomizeGlobalStyles(object state)
         {
             Random rng = new Random();
-            
-            MetroStyleManager.Default.Theme = rng.Next(2) > 0 ? MetroThemeStyle.Light : MetroThemeStyle.Dark;
 
-            Array values = Enum.GetValues(typeof(MetroColorStyle));
-            object newStyle = values.GetValue(rng.Next(values.Length) + values.GetLowerBound(0));
-            MetroStyleManager.Default.Style = (MetroColorStyle)newStyle;
+            var themes = MetroStyleManager.Styles.Themes.Keys;
+            MetroStyleManager.Default.Theme = themes.ElementAt(rng.Next(themes.Count));
+
+            var styles = MetroStyleManager.Styles.Styles.Keys;
+            MetroStyleManager.Default.Style = styles.ElementAt(rng.Next(styles.Count));
         }
 
 
@@ -55,5 +72,6 @@ namespace MetroFramework.Demo
             long interval = metroToggle4.Checked ? 5000 : -1;
             timer.Change(0, interval);
         }
+
     }
 }

@@ -1,40 +1,42 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-using MetroFramework.Components;
-using MetroFramework.Drawing;
-using MetroFramework.Interfaces;
-
 namespace MetroFramework.Controls
 {
     [Designer("MetroFramework.Design.MetroProgressSpinnerDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(ProgressBar))]
-    public class MetroProgressSpinner : MetroControlBase
+    public partial class MetroProgressSpinner : MetroControlBase
     {
 
         #region Fields
@@ -59,7 +61,7 @@ namespace MetroFramework.Controls
             set
             {
                 if (value != -1 && (value < minimum || value > maximum))
-                    throw new ArgumentOutOfRangeException("Progress value must be -1 or between Minimum and Maximum.", (Exception)null);
+                    throw new ArgumentOutOfRangeException("Progress value must be -1 or between Minimum and Maximum.");
                 progress = value;
                 Refresh();
             }
@@ -74,9 +76,9 @@ namespace MetroFramework.Controls
             set
             {
                 if (value < 0)
-                    throw new ArgumentOutOfRangeException("Minimum value must be >= 0.", (Exception)null);
+                    throw new ArgumentOutOfRangeException("Minimum value must be >= 0.");
                 if (value >= maximum)
-                    throw new ArgumentOutOfRangeException("Minimum value must be < Maximum.", (Exception)null);
+                    throw new ArgumentOutOfRangeException("Minimum value must be < Maximum.");
                 minimum = value;
                 if (progress != -1 && progress < minimum)
                     progress = minimum;
@@ -93,7 +95,7 @@ namespace MetroFramework.Controls
             set
             {
                 if (value <= minimum)
-                    throw new ArgumentOutOfRangeException("Maximum value must be > Minimum.", (Exception)null);
+                    throw new ArgumentOutOfRangeException("Maximum value must be > Minimum.");
                 maximum = value;
                 if (progress > maximum)
                     progress = maximum;
@@ -110,7 +112,7 @@ namespace MetroFramework.Controls
             set { ensureVisible = value; Refresh(); }
         }
 
-        private float speed;
+        private float speed = 1f;
         [DefaultValue(1f)]
         [Category(MetroDefaults.CatBehavior)]
         public float Speed
@@ -119,7 +121,7 @@ namespace MetroFramework.Controls
             set
             {
                 if (value <= 0 || value > 10)
-                    throw new ArgumentOutOfRangeException("Speed value must be > 0 and <= 10.", (Exception)null);
+                    throw new ArgumentOutOfRangeException("Speed value must be > 0 and <= 10.");
 
                 speed = value;
             }
@@ -134,33 +136,23 @@ namespace MetroFramework.Controls
             set { backwards = value; Refresh(); }
         }
 
-        private bool useCustomBackground = false;
-        [DefaultValue(false)]
-        [Category(MetroDefaults.CatAppearance)]
-        public bool CustomBackground
-        {
-            get { return useCustomBackground; }
-            set { useCustomBackground = value; }
-        }
-
         #endregion
-
-        #region Constructor
 
         public MetroProgressSpinner()
         {
-            timer = new Timer();
-            timer.Interval = 20;
-            timer.Tick += timer_Tick;
-            timer.Enabled = true;
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            UseTransparency();
 
             Width = 16;
             Height = 16;
-            speed = 1;
-            DoubleBuffered = true;
+            timer = new Timer { Interval = 20, Enabled = true };
         }
 
-        #endregion
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (!DesignMode) timer.Tick += (s, a) => { angle += speed * (backwards ? -6f : 6f); Invalidate(); };
+        }
 
         #region Public Methods
 
@@ -173,47 +165,17 @@ namespace MetroFramework.Controls
 
         #endregion
 
-        #region Management Methods
-
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            if (!DesignMode)
-            {
-                angle += 6f * speed * (backwards ? -1 : 1);
-                Refresh();
-            }
-        }
-
-        #endregion
-
         #region Paint Methods
 
-        protected override void OnPaint(PaintEventArgs e)
+        // override to always use style color
+        public override Color EffectiveForeColor
         {
-            Color backColor, foreColor;
+            get { return ShouldSerializeForeColor() || MetroControlState != "Normal" ? base.EffectiveForeColor : GetStyleColor(); }
+        }
 
-            if (useCustomBackground)
-            {
-                backColor = BackColor;
-                foreColor = MetroPaint.GetStyleColor(Style);
-            }
-            else
-            {
-                if (Parent is MetroTile)
-                {
-                    backColor = MetroPaint.GetStyleColor(Style);
-                    foreColor = MetroPaint.ForeColor.Tile.Normal(Theme);
-                }
-                else
-                {
-                    backColor = MetroPaint.BackColor.Form(Theme);
-                    foreColor = MetroPaint.GetStyleColor(Style);
-                }
-            }
-
-            e.Graphics.Clear(backColor);
-
-            using (Pen forePen = new Pen(foreColor, (float)Width / 5))
+        protected override void OnPaintForeground(PaintEventArgs e)
+        {
+            using (Pen forePen = new Pen(EffectiveForeColor, (float)Width / 5))
             {
                 int padding = (int)Math.Ceiling((float)Width / 10);
 

@@ -22,92 +22,61 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-using MetroFramework.Components;
 using MetroFramework.Drawing;
-using MetroFramework.Interfaces;
 
 namespace MetroFramework.Controls
 {
     [Designer("MetroFramework.Design.MetroButtonDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
     [ToolboxBitmap(typeof(Button))]
     [DefaultEvent("Click")]
-    public class MetroButton : MetroButtonBase
+    public partial class MetroButton : MetroButtonBase
     {
 
-        #region Fields
+        #region Properties
 
         private bool highlight = false;
         [DefaultValue(false)]
         public bool Highlight
         {
             get { return highlight; }
-            set { highlight = value; }
+            set { highlight = value; Invalidate();}
         }
 
-        private bool isHovered = false;
-        private bool isPressed = false;
-        private bool isFocused = false;
-
         #endregion
-
-        #region Constructor
 
         public MetroButton()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.UserPaint, true);
+            SetStyle(
+                    ControlStyles.AllPaintingInWmPaint |
+                    ControlStyles.OptimizedDoubleBuffer |
+                    ControlStyles.ResizeRedraw |
+                    ControlStyles.UserPaint, true);
+            UseSelectable();
         }
 
-        #endregion
-
-        #region Paint Methods
-
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Color backColor, borderColor, foreColor;
+            try
+            {
+                e.Graphics.Clear(EffectiveBackColor);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+                Invalidate();
+            }
+        }
 
-            if (isHovered && !isPressed && Enabled)
+        protected override void OnPaintForeground(PaintEventArgs e)
+        {
+            if (Highlight && MetroControlState == "Normal")
             {
-                backColor = MetroPaint.BackColor.Button.Hover(Theme);
-                borderColor = MetroPaint.BorderColor.Button.Hover(Theme);
-                foreColor = MetroPaint.ForeColor.Button.Hover(Theme);
-            }
-            else if (isHovered && isPressed && Enabled)
-            {
-                backColor = MetroPaint.BackColor.Button.Press(Theme);
-                borderColor = MetroPaint.BorderColor.Button.Press(Theme);
-                foreColor = MetroPaint.ForeColor.Button.Press(Theme);
-            }
-            else if (!Enabled)
-            {
-                backColor = MetroPaint.BackColor.Button.Disabled(Theme);
-                borderColor = MetroPaint.BorderColor.Button.Disabled(Theme);
-                foreColor = MetroPaint.ForeColor.Button.Disabled(Theme);
-            }
-            else
-            {
-                backColor = MetroPaint.BackColor.Button.Normal(Theme);
-                borderColor = MetroPaint.BorderColor.Button.Normal(Theme);
-                foreColor = MetroPaint.ForeColor.Button.Normal(Theme);
-            }
-
-            e.Graphics.Clear(backColor);
-            
-            using (Pen p = new Pen(borderColor))
-            {
-                Rectangle borderRect = new Rectangle(0, 0, Width - 1, Height - 1);
-                e.Graphics.DrawRectangle(p, borderRect);
-            }
-
-            if (Highlight && !isHovered && !isPressed && Enabled)
-            {
-                using (Pen p = MetroPaint.GetStylePen(Style))
+                using (Pen p = new Pen(GetStyleColor()))
                 {
                     Rectangle borderRect = new Rectangle(0, 0, Width - 1, Height - 1);
                     e.Graphics.DrawRectangle(p, borderRect);
@@ -115,127 +84,18 @@ namespace MetroFramework.Controls
                     e.Graphics.DrawRectangle(p, borderRect);
                 }
             }
-
-            TextRenderer.DrawText(e.Graphics, Text, MetroFonts.Button, ClientRectangle, foreColor, backColor, MetroPaint.GetTextFormatFlags(TextAlign));
-
-            if (false && isFocused)
-                ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
-        }
-
-        #endregion
-
-        #region Focus Methods
-
-        protected override void OnGotFocus(EventArgs e)
-        {
-            isFocused = true;
-            Invalidate();
-
-            base.OnGotFocus(e);
-        }
-
-        protected override void OnLostFocus(EventArgs e)
-        {
-            isFocused = false;
-            isHovered = false;
-            isPressed = false;
-            Invalidate();
-
-            base.OnLostFocus(e);
-        }
-
-        protected override void OnEnter(EventArgs e)
-        {
-            isFocused = true;
-            Invalidate();
-
-            base.OnEnter(e);
-        }
-
-        protected override void OnLeave(EventArgs e)
-        {
-            isFocused = false;
-            isHovered = false;
-            isPressed = false;
-            Invalidate();
-
-            base.OnLeave(e);
-        }
-
-        #endregion
-
-        #region Keyboard Methods
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Space)
+            else
             {
-                isHovered = true;
-                isPressed = true;
-                Invalidate();
+                using (Pen p = new Pen(GetThemeColor("BorderColor")))
+                {
+                    Rectangle borderRect = new Rectangle(0, 0, Width - 1, Height - 1);
+                    e.Graphics.DrawRectangle(p, borderRect);
+                }
             }
 
-            base.OnKeyDown(e);
+            TextRenderer.DrawText(e.Graphics, Text, EffectiveFont, ClientRectangle, EffectiveForeColor, EffectiveBackColor,
+                TextAlign.AsTextFormatFlags() | TextFormatFlags.EndEllipsis);
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            isHovered = false;
-            isPressed = false;
-            Invalidate();
-
-            base.OnKeyUp(e);
-        }
-
-        #endregion
-
-        #region Mouse Methods
-
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            isHovered = true;
-            Invalidate();
-
-            base.OnMouseEnter(e);
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                isPressed = true;
-                Invalidate();
-            }
-
-            base.OnMouseDown(e);
-        }
-
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            isPressed = false;
-            Invalidate();
-
-            base.OnMouseUp(e);
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            isHovered = false;
-            Invalidate();
-
-            base.OnMouseLeave(e);
-        }
-
-        #endregion
-
-        #region Overridden Methods
-
-        protected override void OnEnabledChanged(EventArgs e)
-        {
-            base.OnEnabledChanged(e);
-            Invalidate();
-        }
-
-        #endregion
     }
 }

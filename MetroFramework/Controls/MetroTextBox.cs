@@ -1,97 +1,107 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using MetroFramework.Components;
 using MetroFramework.Drawing;
 using MetroFramework.Interfaces;
+using MetroFramework.Native;
 
 namespace MetroFramework.Controls
 {
-    [Designer("MetroFramework.Design.MetroTextBoxDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
-    public class MetroTextBox : MetroControlBase
+    //[Designer("MetroFramework.Design.MetroTextBoxDesigner, " + AssemblyRef.MetroFrameworkDesignSN)]
+    public partial class MetroTextBox : MetroControlBase
     {
+        protected override string MetroControlCategory { get { return "TextBox"; } }
 
         #region Fields
 
         private PromptedTextBox baseTextBox;
         
-        private bool useStyleColors = false;
-        [DefaultValue(false)]
-        [Category(MetroDefaults.CatAppearance)]
-        public bool UseStyleColors
-        {
-            get { return useStyleColors; }
-            set { useStyleColors = value; UpdateBaseTextBox(); }
-        }
-
-        private MetroTextBoxSize metroTextBoxSize = MetroTextBoxSize.Small;
-        [DefaultValue(MetroTextBoxSize.Small)]
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroTextBoxSize FontSize
-        {
-            get { return metroTextBoxSize; }
-            set { metroTextBoxSize = value; UpdateBaseTextBox(); }
-        }
-
-        private MetroTextBoxWeight metroTextBoxWeight = MetroTextBoxWeight.Regular;
-        [DefaultValue(MetroTextBoxWeight.Regular)]
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroTextBoxWeight FontWeight
-        {
-            get { return metroTextBoxWeight; }
-            set { metroTextBoxWeight = value; UpdateBaseTextBox(); }
-        }
-
-        private bool useCustomBackground = false;
-        [DefaultValue(false)]
-        [Category(MetroDefaults.CatAppearance)]
-        public bool CustomBackground
-        {
-            get { return useCustomBackground; }
-            set { useCustomBackground = value; }
-        }
-
-        private bool useCustomForeColor = false;
-        [DefaultValue(false)]
-        [Category(MetroDefaults.CatAppearance)]
-        public bool CustomForeColor
-        {
-            get { return useCustomForeColor; }
-            set { useCustomForeColor = value; }
-        }
-
         [Browsable(true)]
-        [EditorBrowsable(EditorBrowsableState.Always)]
         [DefaultValue("")]
         [Category(MetroDefaults.CatAppearance)]
         public string PromptText
         {
             get { return baseTextBox.PromptText; }
             set { baseTextBox.PromptText = value; }
+        }
+
+        private Image textBoxIcon = null;
+        [Browsable(true)]
+        [DefaultValue(null)]
+        [Category(MetroDefaults.CatAppearance)]
+        public Image Icon
+        {
+            get { return textBoxIcon; }
+            set  { textBoxIcon = value; Invalidate(); }
+        }
+
+        private bool textBoxIconRight = false;
+        [Browsable(true)]
+        [DefaultValue(false)]
+        [Category(MetroDefaults.CatAppearance)]
+        public bool IconRight
+        {
+            get { return textBoxIconRight; }
+            set { textBoxIconRight = value; Invalidate(); }
+        }
+
+        private bool displayIcon = true;
+        [Browsable(true)]
+        [DefaultValue(true)]
+        [Category(MetroDefaults.CatAppearance)]
+        public bool DisplayIcon
+        {
+            get { return displayIcon; }
+            set { displayIcon = value; Invalidate(); }
+        }
+
+        private Size IconSize 
+        {
+            get 
+            {
+                if (displayIcon && textBoxIcon != null)
+                {
+                    Size originalSize = textBoxIcon.Size;
+                    double resizeFactor = (ClientRectangle.Height - 2) / (double)originalSize.Height;
+
+                    Point iconLocation = new Point(1, 1);
+                    return new Size((int)(originalSize.Width * resizeFactor), (int)(originalSize.Height * resizeFactor));
+                }
+
+                return new Size(-1, -1);
+            }   
         }
 
         #endregion
@@ -190,12 +200,11 @@ namespace MetroFramework.Controls
 
         #endregion
 
-        #region Constructor
-
         public MetroTextBox()
         {
-            SetStyle(ControlStyles.DoubleBuffer | ControlStyles.OptimizedDoubleBuffer, true);
-
+            SetStyle(ControlStyles.DoubleBuffer | ControlStyles.OptimizedDoubleBuffer, true); // TODO: ???
+            UseStyleColor();
+            UseFontStyle();
             base.TabStop = false;
 
             CreateBaseTextBox();
@@ -203,7 +212,11 @@ namespace MetroFramework.Controls
             AddEventHandler();       
         }
 
-        #endregion
+        // This could come handy if we need to propagate style changes etc.
+        protected override void NotifyInvalidate(Rectangle invalidatedArea)
+        {
+            base.NotifyInvalidate(invalidatedArea);
+        }
 
         #region Routing Methods
 
@@ -298,37 +311,43 @@ namespace MetroFramework.Controls
 
         #region Paint Methods
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            base.OnPaint(e);
-
-            if (useCustomBackground)
+            try
             {
-                e.Graphics.Clear(BackColor);
-                baseTextBox.BackColor = BackColor;
+                e.Graphics.Clear(EffectiveBackColor);
             }
-            else
+            catch (Exception ex)
             {
-                e.Graphics.Clear(MetroPaint.BackColor.Button.Normal(Theme));
-                baseTextBox.BackColor = MetroPaint.BackColor.Button.Normal(Theme);
+                Trace.WriteLine(ex);
+                Invalidate();
             }
+        }
 
-            if (useCustomForeColor)
-            {
-                baseTextBox.ForeColor = ForeColor;
-            }
-            else
-            {
-                baseTextBox.ForeColor = MetroPaint.ForeColor.Button.Normal(Theme);
-            }
+        protected override void OnMetroStyleChanged(EventArgs e)
+        {
+            base.OnMetroStyleChanged(e);
+            UpdateBaseTextBox();
+        }
 
-            Color borderColor = MetroPaint.BorderColor.Button.Normal(Theme);
-            if (useStyleColors)
-                borderColor = MetroPaint.GetStyleColor(Style);
-
-            using (Pen p = new Pen(borderColor))
+        protected override void OnPaintForeground(PaintEventArgs e)
+        {
+            using (Pen p = new Pen(UseStyleColors ? GetStyleColor() : GetThemeColor("BorderColor")))
             {
                 e.Graphics.DrawRectangle(p, new Rectangle(0, 0, Width - 1, Height - 1));
+            }
+
+            DrawIcon(e.Graphics);
+        }
+
+        private void DrawIcon(Graphics g)
+        {
+            if (displayIcon && textBoxIcon != null)
+            {
+                Point iconLocation = new Point(textBoxIconRight ? ClientRectangle.Width - IconSize.Width - 1 : 1, 1);
+                g.DrawImage(textBoxIcon, iconLocation);
+
+                UpdateBaseTextBox();
             }
         }
 
@@ -356,17 +375,17 @@ namespace MetroFramework.Controls
         {
             if (baseTextBox != null) return;
 
-            baseTextBox = new PromptedTextBox();
-
-            baseTextBox.BorderStyle = BorderStyle.None;
-            baseTextBox.Font = MetroFonts.TextBox(metroTextBoxSize, metroTextBoxWeight);
-            baseTextBox.Location = new Point(3, 3);
-            baseTextBox.Size = new Size(Width - 6, Height - 6);
+            baseTextBox = new PromptedTextBox
+                {
+                    BorderStyle = BorderStyle.None,
+                    Font = EffectiveFont,
+                    Location = new Point(3, 3),
+                    Size = new Size(Width - 6, Height - 6),
+                    TabStop = true,
+                    //Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right;
+                };
 
             Size = new Size(baseTextBox.Width + 6, baseTextBox.Height + 6);
-
-            baseTextBox.TabStop = true;
-            //baseTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right;
 
             Controls.Add(baseTextBox);
         }
@@ -396,9 +415,26 @@ namespace MetroFramework.Controls
         {
             if (baseTextBox == null) return;
 
-            baseTextBox.Font = MetroFonts.TextBox(metroTextBoxSize, metroTextBoxWeight);
-            baseTextBox.Location = new Point(3, 3);
-            baseTextBox.Size = new Size(Width - 6, Height - 6);
+            baseTextBox.BackColor = EffectiveBackColor;
+            baseTextBox.ForeColor = EffectiveForeColor;
+            baseTextBox.Font = EffectiveFont;
+
+            if (displayIcon)
+            {
+                Point textBoxLocation = new Point(IconSize.Width + 4, 3);
+                if (textBoxIconRight)
+                {
+                    textBoxLocation = new Point(3, 3);
+                }
+
+                baseTextBox.Location = textBoxLocation;
+                baseTextBox.Size = new Size(Width - 7 - IconSize.Width, Height - 6);
+            }
+            else
+            {
+                baseTextBox.Location = new Point(3, 3);
+                baseTextBox.Size = new Size(Width - 6, Height - 6);
+            }
         }
 
         #endregion
@@ -408,22 +444,21 @@ namespace MetroFramework.Controls
         private class PromptedTextBox : TextBox
         {
             private const int OCM_COMMAND = 0x2111;
-            private const int WM_PAINT = 15;
 
             private bool drawPrompt;
 
             private string promptText = "";
             [Browsable(true)]
-            [EditorBrowsable(EditorBrowsableState.Always)]
             [DefaultValue("")]
             public string PromptText
             {
                 get { return promptText; }
-                set
-                {
-                    promptText = value.Trim();
-                    Invalidate();
-                }
+                set { promptText = value != null ? value.Trim() : String.Empty; Invalidate(); }
+            }
+
+            public PromptedTextBox()
+            {
+                drawPrompt= String.IsNullOrEmpty(Text);
             }
 
             private void DrawTextPrompt()
@@ -436,27 +471,11 @@ namespace MetroFramework.Controls
 
             private void DrawTextPrompt(Graphics g)
             {
-                TextFormatFlags flags = TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis;
                 Rectangle clientRectangle = ClientRectangle;
+                clientRectangle.Offset(TextAlign == HorizontalAlignment.Left ? 1 : 0, 1);
 
-                switch (TextAlign)
-                {
-                    case HorizontalAlignment.Left:
-                        clientRectangle.Offset(1, 1);
-                        break;
-
-                    case HorizontalAlignment.Right:
-                        flags |= TextFormatFlags.Right;
-                        clientRectangle.Offset(0, 1);
-                        break;
-
-                    case HorizontalAlignment.Center:
-                        flags |= TextFormatFlags.HorizontalCenter;
-                        clientRectangle.Offset(0, 1);
-                        break;
-                }
-
-                TextRenderer.DrawText(g, promptText, Font, clientRectangle, SystemColors.GrayText, BackColor, flags);
+                TextRenderer.DrawText(g, promptText, Font, clientRectangle, SystemColors.GrayText, BackColor, 
+                    TextAlign.AsTextFormatFlags() | TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis);
             }
 
             protected override void OnPaint(PaintEventArgs e)
@@ -477,13 +496,13 @@ namespace MetroFramework.Controls
             protected override void OnTextChanged(EventArgs e)
             {
                 base.OnTextChanged(e);
-                drawPrompt = Text.Length == 0;
+                drawPrompt = String.IsNullOrEmpty(Text);
             }
 
             protected override void WndProc(ref Message m)
             {
                 base.WndProc(ref m);
-                if (((m.Msg == WM_PAINT) || (m.Msg == OCM_COMMAND)) &&
+                if (((m.Msg == WinApi.Messages.WM_PAINT) || (m.Msg == OCM_COMMAND)) &&
                     (drawPrompt && !GetStyle(ControlStyles.UserPaint)))
                 {
                     DrawTextPrompt();

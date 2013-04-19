@@ -1,39 +1,43 @@
-﻿/**
- * MetroFramework - Modern UI for WinForms
- * 
- * The MIT License (MIT)
- * Copyright (c) 2011 Sven Walter, http://github.com/viperneo
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in the 
- * Software without restriction, including without limitation the rights to use, copy, 
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, subject to the 
- * following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+﻿#region Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+/*
+ 
+MetroFramework - Windows Modern UI for .NET WinForms applications
+
+Copyright (c) 2013 Jens Thiel, http://thielj.github.io/MetroFramework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, copy, 
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the 
+following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
+
  */
+#endregion
+
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
-
-using MetroFramework.Components;
-using MetroFramework.Interfaces;
-using MetroFramework.Drawing;
+using MetroFramework.Native;
 
 namespace MetroFramework.Controls
 {
     [ToolboxBitmap(typeof(ComboBox))]
-    public class MetroComboBox : MetroComboBoxBase
+    public partial class MetroComboBox : MetroComboBoxBase
     {
 
         #region Fields
@@ -54,267 +58,119 @@ namespace MetroFramework.Controls
             set { base.DropDownStyle = ComboBoxStyle.DropDownList; }
         }
 
-        private MetroLinkSize metroLinkSize = MetroLinkSize.Medium;
-        [DefaultValue(MetroLinkSize.Medium)]
+        private string promptText = "";
+        [Browsable(true)]
+        [DefaultValue("")]
         [Category(MetroDefaults.CatAppearance)]
-        public MetroLinkSize FontSize
+        public string PromptText
         {
-            get { return metroLinkSize; }
-            set { metroLinkSize = value; }
+            get { return promptText; }
+            set { promptText = value ?? String.Empty; Invalidate(); }
         }
 
-        private MetroLinkWeight metroLinkWeight = MetroLinkWeight.Regular;
-        [DefaultValue(MetroLinkWeight.Regular)]
-        [Category(MetroDefaults.CatAppearance)]
-        public MetroLinkWeight FontWeight
-        {
-            get { return metroLinkWeight; }
-            set { metroLinkWeight = value; }
-        }
-
-        [Browsable(false)]
-        public override Color BackColor
-        {
-            get
-            {
-                return MetroPaint.BackColor.Form(Theme);
-            }
-        }
-
-        [Browsable(false)]
-        public override Font Font
-        {
-            get
-            {
-                return base.Font;
-            }
-            set
-            {
-                base.Font = value;
-            }
-        }
-
-        [Browsable(false)]
-        public override Color ForeColor
-        {
-            get
-            {
-                return base.ForeColor;
-            }
-            set
-            {
-                base.ForeColor = value;
-            }
-        }
-
-        private bool isHovered = false;
-        private bool isPressed = false;
-        private bool isFocused = false;
+        private bool drawPrompt;
 
         #endregion
-
-        #region Constructor
 
         public MetroComboBox()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+            UseTransparency();
+            UseSelectable();
 
             base.DrawMode = DrawMode.OwnerDrawFixed;
             base.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            //drawPrompt = (SelectedIndex == -1);
         }
 
-        #endregion
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ItemHeight = GetPreferredSize(Size.Empty).Height;
+        }
 
         #region Paint Methods
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void OnPaintForeground(PaintEventArgs e)
         {
-            base.ItemHeight = GetPreferredSize(Size.Empty).Height;
+            Color foreColor = EffectiveForeColor;
 
-            Color backColor, borderColor, foreColor;
-
-            if (Parent != null)
-                backColor = Parent.BackColor;
-            else
-                backColor = MetroPaint.BackColor.Form(Theme);
-
-            if (isHovered && !isPressed && Enabled)
-            {
-                foreColor = MetroPaint.ForeColor.ComboBox.Hover(Theme);
-                borderColor = MetroPaint.BorderColor.ComboBox.Hover(Theme);
-            }
-            else if (isHovered && isPressed && Enabled)
-            {
-                foreColor = MetroPaint.ForeColor.ComboBox.Press(Theme);
-                borderColor = MetroPaint.BorderColor.ComboBox.Press(Theme);
-            }
-            else if (!Enabled)
-            {
-                foreColor = MetroPaint.ForeColor.ComboBox.Disabled(Theme);
-                borderColor = MetroPaint.BorderColor.ComboBox.Disabled(Theme);
-            }
-            else
-            {
-                foreColor = MetroPaint.ForeColor.ComboBox.Normal(Theme);
-                borderColor = MetroPaint.BorderColor.ComboBox.Normal(Theme);
-            }
-
-            e.Graphics.Clear(backColor);
-
-            using (Pen p = new Pen(borderColor))
+            // border
+            using (Pen p = new Pen(GetThemeColor("BorderColor")))
             {
                 Rectangle boxRect = new Rectangle(0, 0, Width - 1, Height - 1);
                 e.Graphics.DrawRectangle(p, boxRect);
             }
 
+            // drop-down arrow
             using (SolidBrush b = new SolidBrush(foreColor))
             {
-                e.Graphics.FillPolygon(b, new Point[] { new Point(Width - 20, (Height / 2) - 2), new Point(Width - 9, (Height / 2) - 2), new Point(Width - 15,  (Height / 2) + 4) });
+                e.Graphics.FillPolygon(b, new[]
+                    {
+                        new Point(Width - 20, (Height / 2) - 2), 
+                        new Point(Width - 9, (Height / 2) - 2), 
+                        new Point(Width - 15,  (Height / 2) + 4)
+                    });
             }
 
             Rectangle textRect = new Rectangle(2, 2, Width - 20, Height - 4);
-            TextRenderer.DrawText(e.Graphics, Text, MetroFonts.Link(metroLinkSize, metroLinkWeight), textRect, foreColor, backColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+            TextRenderer.DrawText(e.Graphics, Text, EffectiveFont, textRect, foreColor, /*EffectiveBackColor,*/ TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
-            if (false && isFocused)
-                ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
+            if (drawPrompt)
+            {
+                DrawTextPrompt(e.Graphics);
+            }
         }
 
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            if (e.Index >= 0)
-            {
-                Color backColor, foreColor;
-
-                if (e.State == (DrawItemState.NoAccelerator | DrawItemState.NoFocusRect) || e.State == DrawItemState.None)
-                {
-                    backColor = MetroPaint.BackColor.Form(Theme);
-                    foreColor = MetroPaint.ForeColor.Link.Normal(Theme);
-                }
-                else
-                {
-                    backColor = MetroPaint.GetStyleColor(Style);
-                    foreColor = MetroPaint.ForeColor.Tile.Normal(Theme);
-                }
-
-                using (SolidBrush b = new SolidBrush(backColor))
-                {
-                    e.Graphics.FillRectangle(b, new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Width, e.Bounds.Height));
-                }
-
-                Rectangle textRect = new Rectangle(0, e.Bounds.Top, e.Bounds.Width, e.Bounds.Height);
-                TextRenderer.DrawText(e.Graphics, GetItemText(Items[e.Index]), MetroFonts.Link(metroLinkSize, metroLinkWeight), textRect, foreColor, backColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-            }
-            else
+            if (e.Index < 0)
             {
                 base.OnDrawItem(e);
+                return;
             }
-        }
 
-        #endregion
+            bool normal = e.State == (DrawItemState.NoAccelerator | DrawItemState.NoFocusRect) || e.State == DrawItemState.None;
+            // TODO: We need a real background color for transparent drawing
+            Color backColor = normal ? EffectiveBackColor : GetStyleColor();
+            // replace transparent background colors for drawing items
+            if (normal && backColor.A < 255) backColor = GetThemeColor("BackColor");
+            // TODO: We need complementing foreground colors for the styles !!
+            Color foreColor = normal ? EffectiveForeColor : GetThemeColor("Tile.ForeColor.Normal");
 
-        #region Focus Methods
-
-        protected override void OnGotFocus(EventArgs e)
-        {
-            isFocused = true;
-            Invalidate();
-
-            base.OnGotFocus(e);
-        }
-
-        protected override void OnLostFocus(EventArgs e)
-        {
-            isFocused = false;
-            isHovered = false;
-            isPressed = false;
-            Invalidate();
-
-            base.OnLostFocus(e);
-        }
-
-        protected override void OnEnter(EventArgs e)
-        {
-            isFocused = true;
-            Invalidate();
-
-            base.OnEnter(e);
-        }
-
-        protected override void OnLeave(EventArgs e)
-        {
-            isFocused = false;
-            isHovered = false;
-            isPressed = false;
-            Invalidate();
-
-            base.OnLeave(e);
-        }
-
-        #endregion
-
-        #region Keyboard Methods
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Space)
+            using (SolidBrush b = new SolidBrush(backColor))
             {
-                isHovered = true;
-                isPressed = true;
-                Invalidate();
+                e.Graphics.FillRectangle(b, e.Bounds);
             }
-
-            base.OnKeyDown(e);
+            TextRenderer.DrawText(e.Graphics, GetItemText(Items[e.Index]), EffectiveFont, e.Bounds, foreColor, backColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+        protected override void WndProc(ref Message m)
         {
-            isHovered = false;
-            isPressed = false;
-            Invalidate();
+            base.WndProc(ref m);
 
-            base.OnKeyUp(e);
+            // AFAIK, OCM_MESSAGES is MFC-specific. The WM_PAINT is already handled by us.
+            const int OCM_COMMAND = WinApi.Messages.OCM__BASE + WinApi.Messages.WM_COMMAND;
+            //if (((m.Msg == WinApi.Messages.WM_PAINT) || (m.Msg == OCM_COMMAND)) && (drawPrompt))
+            //{
+            //    DrawTextPrompt();
+            //}
         }
 
-        #endregion
-
-        #region Mouse Methods
-
-        protected override void OnMouseEnter(EventArgs e)
+        private void DrawTextPrompt()
         {
-            isHovered = true;
-            Invalidate();
-
-            base.OnMouseEnter(e);
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
+            using (Graphics graphics = CreateGraphics())
             {
-                isPressed = true;
-                Invalidate();
+                DrawTextPrompt(graphics);
             }
-
-            base.OnMouseDown(e);
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
+        private void DrawTextPrompt(Graphics g)
         {
-            isPressed = false;
-            Invalidate();
-
-            base.OnMouseUp(e);
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            isHovered = false;
-            Invalidate();
-
-            base.OnMouseLeave(e);
+            Rectangle textRect = new Rectangle(2, 2, Width - 20, Height - 4);
+            TextRenderer.DrawText(g, promptText, EffectiveFont, textRect, GetThemeColor("ForeColor", "Disabled"),
+                /*EffectiveBackColor,*/ TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         #endregion
@@ -323,18 +179,21 @@ namespace MetroFramework.Controls
 
         public override Size GetPreferredSize(Size proposedSize)
         {
-            Size preferredSize;
-            base.GetPreferredSize(proposedSize);
-
             using (var g = CreateGraphics())
             {
                 string measureText = Text.Length > 0 ? Text : "MeasureText";
                 proposedSize = new Size(int.MaxValue, int.MaxValue);
-                preferredSize = TextRenderer.MeasureText(g, measureText, MetroFonts.Link(metroLinkSize, metroLinkWeight), proposedSize, TextFormatFlags.Left | TextFormatFlags.LeftAndRightPadding | TextFormatFlags.VerticalCenter);
+                Size preferredSize = TextRenderer.MeasureText(g, measureText, EffectiveFont, proposedSize, TextFormatFlags.LeftAndRightPadding );
                 preferredSize.Height += 4;
+                return preferredSize;
             }
+        }
 
-            return preferredSize;
+        protected override void OnSelectedIndexChanged(EventArgs e)
+        {
+            base.OnSelectedIndexChanged(e);
+            drawPrompt = (SelectedIndex == -1);
+            Invalidate();
         }
 
         #endregion

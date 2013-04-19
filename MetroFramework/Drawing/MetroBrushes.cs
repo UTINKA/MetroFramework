@@ -22,12 +22,14 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+using System;
 using System.Drawing;
 using System.Collections.Generic;
 
-namespace MetroFramework
+namespace MetroFramework.Drawing
 {
-    public sealed class MetroBrushes
+    [Obsolete("Use new XML StyleManager", false)]
+    internal static class MetroBrushes
     {
         private static readonly Dictionary<string, SolidBrush> metroBrushes = new Dictionary<string, SolidBrush>();
 
