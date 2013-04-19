@@ -183,7 +183,7 @@ namespace MetroFramework.Forms
 
             if (DesignMode) return;
 
-            SessionSwitch("OnLoad");
+           SessionSwitch("OnLoad");
 
             switch (IsMdiChild ? FormStartPosition.CenterParent : StartPosition)
             {
@@ -411,6 +411,15 @@ namespace MetroFramework.Forms
 
             switch (m.Msg)
             {
+                case WinApi.Messages.WM_NCHITTEST:
+                    WinApi.HitTest ht = HitTestNCA(m.HWnd, m.WParam, m.LParam);
+                    if (ht != WinApi.HitTest.HTCLIENT)
+                    {
+                        m.Result = (IntPtr)ht;
+                        return;
+                    }
+                    break;
+
                 case WinApi.Messages.WM_SYSCOMMAND:
                     int sc = m.WParam.ToInt32() & 0xFFF0;
                     switch (sc)
@@ -428,15 +437,6 @@ namespace MetroFramework.Forms
                 case WinApi.Messages.WM_NCLBUTTONDBLCLK:
                 case WinApi.Messages.WM_LBUTTONDBLCLK: // I think this one can be removed...
                     if  (!MaximizeBox) return;
-                    break;
-
-                case WinApi.Messages.WM_NCHITTEST:
-                    WinApi.HitTest ht = HitTestNCA(m.HWnd, m.WParam, m.LParam);
-                    if (ht != WinApi.HitTest.HTCLIENT)
-                    {
-                        m.Result = (IntPtr)ht;
-                        return;
-                    }
                     break;
 
                 case WinApi.Messages.WM_SIZING:
@@ -506,21 +506,17 @@ namespace MetroFramework.Forms
 
         private WinApi.HitTest HitTestNCA(IntPtr hwnd, IntPtr wparam, IntPtr lparam)
         {
-            Point vPoint = PointToClient(new Point(WinApi.LoWord((int)lparam), WinApi.HiWord((int)lparam)));
-            var cr = ClientRectangle; 
-
-            if (Resizable && SizeGripRectangle.Contains(vPoint))
+            Point pc = PointToClient(new Point((int)lparam));
+            if (Resizable && SizeGripRectangle.Contains(pc)) 
                 return WinApi.HitTest.HTBOTTOMRIGHT;
-
-            // Caption area - TODO: vary height depending on DisplayHeader / Padding ?
-            if ( CaptionRectangle.Contains(vPoint))
+            if ( CaptionRectangle.Contains(pc))
                 return WinApi.HitTest.HTCAPTION;
-
             return WinApi.HitTest.HTCLIENT;
         }
 
         private Rectangle CaptionRectangle
         {
+            // TODO: vary height depending on DisplayHeader / Padding ?
             get { return new Rectangle(BORDER_WIDTH, BORDER_WIDTH, ClientSize.Width - 2 * BORDER_WIDTH, 50); }
         }
 
@@ -828,7 +824,7 @@ namespace MetroFramework.Forms
 
         protected abstract class MetroShadowBase : Form
         {
-            private Form TargetForm { get; set; }
+            protected MetroForm TargetForm { get; set; }
 
             private readonly int _shadowSize;
             private readonly int _wsExStyle;
@@ -836,7 +832,7 @@ namespace MetroFramework.Forms
             private const int TICKS_PER_MS = 10000;
             private const long RESIZE_REDRAW_INTERVAL = 10*TICKS_PER_MS; 
 
-            protected MetroShadowBase(Form targetForm, int shadowSize, int wsExStyle)
+            protected MetroShadowBase(MetroForm targetForm, int shadowSize, int wsExStyle)
             {
                 TargetForm = targetForm;
                 _shadowSize = shadowSize;
@@ -874,9 +870,10 @@ namespace MetroFramework.Forms
             {
                 base.OnLoad(e);
                 Bounds = GetShadowBounds();
-                //WinApi.SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0, WinApi.SetWindowPosFlags.FRAMECHANGED |
-                //    WinApi.SetWindowPosFlags.NOMOVE | WinApi.SetWindowPosFlags.NOSIZE | WinApi.SetWindowPosFlags.NOZORDER);
-                //WinApi.RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, WinApi.RedrawWindowFlags.Invalidate | WinApi.RedrawWindowFlags.Frame);
+#if DEBUG
+                // Uncomment to debug shadow painting
+                //TargetForm.Opacity = 0.5;
+#endif
             }
 
             protected override void Dispose(bool disposing)
@@ -893,7 +890,7 @@ namespace MetroFramework.Forms
                     TargetForm.Resize -= OnTargetFormResize;
 
                     TargetForm.Owner = Owner; // dis-own so we don't dispose it
-                    TargetForm = Owner = null;
+                    Owner = TargetForm = null;
                 }
                 base.Dispose(disposing);
             }
@@ -1078,7 +1075,7 @@ namespace MetroFramework.Forms
 
         protected class MetroAeroDropShadow : MetroShadowBase
         {
-            public MetroAeroDropShadow(Form targetForm)
+            public MetroAeroDropShadow(MetroForm targetForm)
                 : base(targetForm, 0, WS_EX_TRANSPARENT | WS_EX_NOACTIVATE )
             {
                 // Results differ between 32-bit and 64-bit... In 32-it, we seem to be able to use all border styles
@@ -1090,7 +1087,6 @@ namespace MetroFramework.Forms
                 //   Sizable comes with no frames, but artifacts (64, OK in 32)
                 FormBorderStyle = FormBorderStyle.SizableToolWindow;
                 TransparencyKey = Color.Black;
-
             }
 
             protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -1103,24 +1099,16 @@ namespace MetroFramework.Forms
             protected override void PaintShadow() { Visible = true; }
 
             protected override void ClearShadow() { /* nothing */ }
-
-            protected override void OnPaint(PaintEventArgs e)
-            {
-                //e.Graphics.Clear(Color.Black);
-            }
-
+            protected override void OnPaint(PaintEventArgs e) { /* nothing */ }
+            protected override void OnPaintBackground(PaintEventArgs e) { /* nothing */ }
         }
 
         #endregion
 
-        #region Flat DropShadow Form
-
-        protected class MetroFlatDropShadow : MetroShadowBase
+        protected abstract class MetroLayeredShadowBase : MetroShadowBase
         {
-            private Point _offset = new Point(-6, -6);
-
-            public MetroFlatDropShadow(Form targetForm) 
-                : base(targetForm, 6, WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE)
+            protected MetroLayeredShadowBase(MetroForm targetForm, int distance)
+                : base(targetForm, distance, WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE)
             {
             }
 
@@ -1130,189 +1118,152 @@ namespace MetroFramework.Forms
                 PaintShadow();
             }
 
-            protected override void OnPaint(PaintEventArgs e)
-            {
-                PaintShadow();
-            }
-
             protected override void PaintShadow()
             {
                 Visible = true;
-                using( Bitmap getShadow = DrawBlurBorder() )
-                    SetBitmap(getShadow, 255);
-            }
-
-            protected override void ClearShadow()
-            {
-                // This flickers when running on console
-                Bitmap img = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-                Graphics g = Graphics.FromImage(img);
-                g.Clear(Color.Transparent);
-                g.Flush();
-                g.Dispose();
-                SetBitmap(img, 255);
-                img.Dispose();
-            }
-
-            #region Drawing methods
-
-            private Bitmap DrawBlurBorder()
-            {
-                return (Bitmap)DrawOutsetShadow(Color.Black, new Rectangle(0, 0, ClientRectangle.Width, ClientRectangle.Height));
-            }
-
-            private Image DrawOutsetShadow(Color color, Rectangle shadowCanvasArea)
-            {
-                Rectangle rOuter = shadowCanvasArea;
-                Rectangle rInner = new Rectangle(shadowCanvasArea.X + (-_offset.X - 1), shadowCanvasArea.Y + (-_offset.Y - 1), shadowCanvasArea.Width - (-_offset.X * 2 - 1), shadowCanvasArea.Height - (-_offset.Y * 2 - 1));
-
-                Bitmap img = new Bitmap(rOuter.Width, rOuter.Height, PixelFormat.Format32bppArgb);
-                Graphics g = Graphics.FromImage(img);
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-                using (Brush bgBrush = new SolidBrush(Color.FromArgb(30, Color.Black)))
-                {
-                    g.FillRectangle(bgBrush, rOuter);
-                }
-                using (Brush bgBrush = new SolidBrush(Color.FromArgb(60, Color.Black)))
-                {
-                    g.FillRectangle(bgBrush, rInner);
-                }
-
-                g.Flush();
-                g.Dispose();
-
-                return img;
-            }
-
-            #endregion
-        }
-
-        #endregion
-
-        #region Windows7 DropShadow Form
-
-        protected class MetroRealisticDropShadow : MetroShadowBase
-        {
-            public MetroRealisticDropShadow(Form targetForm) 
-                : base(targetForm, 15, WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE)
-            {
-            }
-
-            protected override void OnLoad(EventArgs e)
-            {
-                base.OnLoad(e);
-                PaintShadow();
-            }
-
-            protected override void OnPaint(PaintEventArgs e)
-            {
-                PaintShadow();
-            }
-
-            protected override void PaintShadow()
-            {
-                Visible = true;
-                using (Bitmap getShadow = DrawBlurBorder())
+                using (Bitmap getShadow = DrawBorder())
                     SetBitmap(getShadow, 255);
             }
 
             protected override void ClearShadow()
             {
                 // This flickers when running on console, no matter if we clear the shadow nor not
-                Bitmap img = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-                Graphics g = Graphics.FromImage(img);
-                g.Clear(Color.Transparent);
-                g.Flush();
-                g.Dispose();
-                SetBitmap(img, 255);
-                img.Dispose();
-            }
-
-            #region Drawing methods
-
-            private Bitmap DrawBlurBorder()
-            {
-                return (Bitmap)DrawOutsetShadow(0, 0, 40, 1, Color.Black, new Rectangle(1, 1, ClientRectangle.Width, ClientRectangle.Height));
-            }
-
-            private Image DrawOutsetShadow(int hShadow, int vShadow, int blur, int spread, Color color, Rectangle shadowCanvasArea)
-            {
-                Rectangle rOuter = shadowCanvasArea;
-                Rectangle rInner = shadowCanvasArea;
-                rInner.Offset(hShadow, vShadow);
-                rInner.Inflate(-blur, -blur);
-                rOuter.Inflate(spread, spread);
-                rOuter.Offset(hShadow, vShadow);
-
-                Rectangle originalOuter = rOuter;
-
-                Bitmap img = new Bitmap(originalOuter.Width, originalOuter.Height, PixelFormat.Format32bppArgb);
-                Graphics g = Graphics.FromImage(img);
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-                var currentBlur = 0;
-                do
+                using (Bitmap img = new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
+                using (Graphics g = Graphics.FromImage(img))
                 {
-                    var transparency = (rOuter.Height - rInner.Height) / (double)(blur * 2 + spread * 2);
-                    var shadowColor = Color.FromArgb(((int)(200 * (transparency * transparency))), color);
-                    var rOutput = rInner;
-                    rOutput.Offset(-originalOuter.Left, -originalOuter.Top);
-
-                    DrawRoundedRectangle(g, rOutput, currentBlur, Pens.Transparent, shadowColor);
-                    rInner.Inflate(1, 1);
-                    currentBlur = (int)((double)blur * (1 - (transparency * transparency)));
-
-                } while (rOuter.Contains(rInner));
-
-                g.Flush();
-                g.Dispose();
-
-                return img;
-            }
-
-            private void DrawRoundedRectangle(Graphics g, Rectangle bounds, int cornerRadius, Pen drawPen, Color fillColor)
-            {
-                int strokeOffset = Convert.ToInt32(Math.Ceiling(drawPen.Width));
-                bounds = Rectangle.Inflate(bounds, -strokeOffset, -strokeOffset);
-
-                var gfxPath = new GraphicsPath();
-
-                if (cornerRadius > 0)
-                {
-                    gfxPath.AddArc(bounds.X, bounds.Y, cornerRadius, cornerRadius, 180, 90);
-                    gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y, cornerRadius, cornerRadius, 270, 90);
-                    gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
-                    gfxPath.AddArc(bounds.X, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+                    g.Clear(Color.Transparent);
+                    SetBitmap(img, 255);
                 }
-                else
-                {
-                    gfxPath.AddRectangle(bounds);
-                }
+            }
 
-                gfxPath.CloseAllFigures();
+            protected abstract Bitmap DrawBorder();
 
-                if (cornerRadius > 5)
+        }
+
+        #region Flat DropShadow Form
+
+        protected class MetroFlatDropShadow : MetroLayeredShadowBase
+        {
+            private const int DISTANCE = 6;
+
+            public MetroFlatDropShadow(MetroForm targetForm) 
+                : base(targetForm, DISTANCE)
+            {
+            }
+
+            protected override Bitmap DrawBorder()
+            {
+                return DrawBorder(Color.Black, ClientRectangle);
+            }
+
+            private Bitmap DrawBorder(Color color, Rectangle canvas)
+            {
+                Bitmap img = new Bitmap(canvas.Width, canvas.Height, PixelFormat.Format32bppArgb);
+                using( Graphics g = Graphics.FromImage(img))
+                using( Region clip = g.Clip )
                 {
-                    using (SolidBrush b = new SolidBrush(fillColor))
+                    Rectangle r = canvas;
+                    r.Inflate(-DISTANCE, -DISTANCE);
+                    clip.Exclude(r);
+                    g.Clip = clip;
+
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                    r = new Rectangle( 2, 2, canvas.Width - 5, canvas.Height -5);
+                    using (var p = new Pen(Color.FromArgb(30, color), 6f))
                     {
-                        g.FillPath(b, gfxPath);
+                        p.LineJoin = LineJoin.Round;
+                        g.DrawRectangle(p, r);
                     }
-                }
-                if (drawPen != Pens.Transparent)
-                {
-                    using (Pen p = new Pen(drawPen.Color))
+                    r.Inflate(-3, -3);
+                    using (var p = new Pen(Color.FromArgb(60, color), 1f))
                     {
-                        p.EndCap = p.StartCap = LineCap.Round;
-                        g.DrawPath(p, gfxPath);
+                        p.LineJoin = LineJoin.Round;
+                        g.DrawRectangle(p, r);
                     }
+
+                    return img;
                 }
             }
         }
 
         #endregion
+
+        #region Windows7 DropShadow Form
+
+        protected class MetroRealisticDropShadow : MetroLayeredShadowBase
+        {
+            private const int DISTANCE = 10;
+            private const int TRANSPARENCY = 60;
+
+            // not tested yet:
+            private const int OFFSET_H = 0;
+            private const int OFFSET_V = 0;
+
+           public MetroRealisticDropShadow(MetroForm targetForm) 
+                : base(targetForm, DISTANCE)
+            {
+            }
+
+            protected override Bitmap DrawBorder()
+            {
+                return DrawBorder(OFFSET_H, OFFSET_V, 30, Color.Black, ClientRectangle);
+            }
+
+            private Bitmap DrawBorder(int hShadow, int vShadow, int blur, Color color, Rectangle canvas)
+            {
+                Bitmap img = new Bitmap(canvas.Width, canvas.Height, PixelFormat.Format32bppArgb);
+                using (Graphics g = Graphics.FromImage(img))
+                using (Region clip = g.Clip)
+                {
+                    // avoid flickering by re-painting the target form's client area
+                    Rectangle r = canvas;
+                    r.Inflate(-DISTANCE, -DISTANCE);
+                    clip.Exclude(r);
+                    g.Clip = clip;
+
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                    r.Offset(-1, -1); r.Width++; r.Height++;
+
+#if DEBUG
+                    // This should be drawn around the canvas
+                    //using (Pen p = new Pen(Color.DeepPink)) g.DrawRectangle(p, r);
+#endif
+                    do
+                    {
+                        double scale = (canvas.Height - r.Height) / (double)(DISTANCE + DISTANCE - 1);
+                        var shadowColor = Color.FromArgb((int)(TRANSPARENCY * scale * scale), color);
+                        int cornerRadius = (blur - DISTANCE) + (int)(DISTANCE * (1 - (scale * scale)));
+
+                        var rOutput = r;
+                        rOutput.Offset(hShadow, vShadow);
+                        DrawRoundedRectangleL(g, rOutput, cornerRadius, shadowColor);
+                        r.Inflate(1, 1);
+                    } while (canvas.Width >= r.Width);
+
+                    return img;
+                }
+            }
+
+            private void DrawRoundedRectangleL(Graphics g, Rectangle r, int cornerRadius, Color fillColor)
+            {
+                using (GraphicsPath gfxPath = new GraphicsPath())
+                using (Pen p = new Pen(fillColor))
+                {
+                    gfxPath.AddArc(r.X, r.Y, cornerRadius, cornerRadius, 180, 90);
+                    gfxPath.AddArc(r.X + r.Width - cornerRadius, r.Y, cornerRadius, cornerRadius, 270, 90);
+                    gfxPath.AddArc(r.X + r.Width - cornerRadius, r.Y + r.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+                    gfxPath.AddArc(r.X, r.Y + r.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+                    gfxPath.CloseAllFigures();
+                    p.LineJoin = LineJoin.Round;
+                    g.DrawPath(p, gfxPath);
+                }
+            }
+
+        }
 
         #endregion
 

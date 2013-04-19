@@ -27,6 +27,7 @@ Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
  */
 #endregion
 
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -35,11 +36,25 @@ namespace MetroFramework
 {
     internal static class MetroExtensions
     {
-        public static StringFormat GetStringFormat(ContentAlignment textAlign)
+        #region System.Drawing related
+
+        /// <summary>
+        ///     Have removed the StringTrimming.EllipsisCharacter here !!
+        /// </summary>
+        public static StringFormat AsStringFormat(this ContentAlignment textAlign)
         {
             StringFormat stringFormat = new StringFormat();
-            stringFormat.Trimming = StringTrimming.EllipsisCharacter;
-
+            /*
+                TopLeft = 1,
+                TopCenter = 2,
+                TopRight = 4,
+                MiddleLeft = 16,
+                MiddleCenter = 32,
+                MiddleRight = 64,
+                BottomLeft = 256,
+                BottomCenter = 512,
+                BottomRight = 1024,
+            */
             switch (textAlign)
             {
                 case ContentAlignment.TopLeft:
@@ -142,5 +157,17 @@ namespace MetroFramework
         internal static Point Center(this Rectangle r) { return new Point(r.Left + r.Width / 2, r.Top + r.Height / 2); }
         internal static int HorizontalCenter(this Rectangle r) { return r.Left + r.Width / 2; }
         internal static int VerticalCenter(this Rectangle r) { return r.Top + r.Height / 2; }
+
+        #endregion
+
+        // for Point, use new Point((int)m.LParam) !!
+
+        public static ushort LoWord(this uint n) { return (ushort)n; }
+        public static short LoWord(this int n) { return (short)(n & 0xffff); }
+        public static ushort HiWord(this uint n) { return (ushort)(n >> 16); }
+        public static short HiWord(this int n) { return (short)((n >> 16) & 0xffff); }
+
+
+
     }
 }

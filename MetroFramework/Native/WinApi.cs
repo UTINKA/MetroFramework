@@ -784,19 +784,5 @@ namespace MetroFramework.Native
         }
 
         #endregion
-
-        #region Helper Methods
-
-        public static int LoWord(int dwValue)
-        {
-            return dwValue & 0xffff;
-        }
-
-        public static int HiWord(int dwValue)
-        {
-            return (dwValue >> 16) & 0xffff;
-        }
-
-        #endregion
     }
 }
