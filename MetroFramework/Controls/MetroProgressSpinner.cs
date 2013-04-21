@@ -21,10 +21,32 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
-Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
 
- */
+ * */
+#endregion
+
+#region Copyright (c) 2009, Yves Goergen
+// Copyright (c) 2009, Yves Goergen
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification, are permitted
+// provided that the following conditions are met:
+//
+// * Redistributions of source code must retain the above copyright notice, this list of conditions
+//   and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice, this list of
+//   conditions and the following disclaimer in the documentation and/or other materials provided
+//   with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
 using System;
@@ -41,11 +63,15 @@ namespace MetroFramework.Controls
 
         #region Fields
 
-        private Timer timer;
+        private readonly Timer timer;
         private int progress;
         private float angle = 270;
 
-        [DefaultValue(true)]
+		/// <summary>
+		/// Gets or sets a value indicating whether the progress spinner is spinning.
+		/// </summary>
+		[DefaultValue(true)]
+		[Description("Specifies whether the progress spinner is spinning.")]
         [Category(MetroDefaults.CatBehavior)]
         public bool Spinning
         {
@@ -53,7 +79,11 @@ namespace MetroFramework.Controls
             set { timer.Enabled = value; }
         }
 
-        [DefaultValue(0)]
+		/// <summary>
+		/// Gets or sets the current progress value. Set -1 to indicate that the current progress is unknown.
+		/// </summary>
+		[DefaultValue(0)]
+		[Description("The current progress value. Set -1 to indicate that the current progress is unknown.")]
         [Category(MetroDefaults.CatAppearance)]
         public int Value
         {
@@ -68,7 +98,11 @@ namespace MetroFramework.Controls
         }
 
         private int minimum = 0;
-        [DefaultValue(0)]
+		/// <summary>
+		/// Gets or sets the minimum progress value.
+		/// </summary>
+		[DefaultValue(0)]
+		[Description("The minimum progress value.")]
         [Category(MetroDefaults.CatAppearance)]
         public int Minimum
         {
@@ -87,7 +121,11 @@ namespace MetroFramework.Controls
         }
 
         private int maximum = 100;
-        [DefaultValue(0)]
+		/// <summary>
+		/// Gets or sets the maximum progress value.
+		/// </summary>
+		[DefaultValue(0)]
+		[Description("The maximum progress value.")]
         [Category(MetroDefaults.CatAppearance)]
         public int Maximum
         {
@@ -104,7 +142,11 @@ namespace MetroFramework.Controls
         }
 
         private bool ensureVisible = true;
-        [DefaultValue(true)]
+		/// <summary>
+		/// Gets or sets a value indicating whether the progress spinner should be visible at all progress values.
+		/// </summary>
+		[DefaultValue(true)]
+		[Description("Specifies whether the progress spinner should be visible at all progress values.")]
         [Category(MetroDefaults.CatAppearance)]
         public bool EnsureVisible
         {
@@ -113,7 +155,11 @@ namespace MetroFramework.Controls
         }
 
         private float speed = 1f;
-        [DefaultValue(1f)]
+		/// <summary>
+		/// Gets or sets the speed factor. 1 is the original speed, less is slower, greater is faster.
+		/// </summary>
+		[DefaultValue(1f)]
+		[Description("The speed factor. 1 is the original speed, less is slower, greater is faster.")]
         [Category(MetroDefaults.CatBehavior)]
         public float Speed
         {
@@ -122,13 +168,16 @@ namespace MetroFramework.Controls
             {
                 if (value <= 0 || value > 10)
                     throw new ArgumentOutOfRangeException("Speed value must be > 0 and <= 10.");
-
                 speed = value;
             }
         }
 
         private bool backwards;
-        [DefaultValue(false)]
+		/// <summary>
+		/// Gets or sets a value indicating whether the progress spinner should spin anti-clockwise.
+		/// </summary>
+		[DefaultValue(false)]
+		[Description("Specifies whether the progress spinner should spin anti-clockwise.")]
         [Category(MetroDefaults.CatBehavior)]
         public bool Backwards
         {
@@ -156,6 +205,9 @@ namespace MetroFramework.Controls
 
         #region Public Methods
 
+		/// <summary>
+		/// Resets the progress spinner's status.
+		/// </summary>
         public void Reset()
         {
             progress = minimum;
@@ -181,48 +233,46 @@ namespace MetroFramework.Controls
 
                 e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
 
+                // Draw spinner pie
                 if (progress != -1)
                 {
+				    // We have a progress value, draw a solid arc line
+				    // angle is the back end of the line.
+				    // angle +/- progress is the front end of the line
+				
                     float sweepAngle;
                     float progFrac = (float)(progress - minimum) / (float)(maximum - minimum);
 
                     if (ensureVisible)
-                    {
                         sweepAngle = 30 + 300f * progFrac;
-                    }
                     else
-                    {
                         sweepAngle = 360f * progFrac;
-                    }
-
                     if (backwards)
-                    {
                         sweepAngle = -sweepAngle;
-                    }
+
 
                     e.Graphics.DrawArc(forePen, padding, padding, Width - 2 * padding - 1, Height - 2 * padding - 1, angle, sweepAngle);
                 }
                 else
                 {
+				    // No progress value, draw a gradient arc line
+				    // angle is the opaque front end of the line
+				    // angle +/- 180° is the transparent tail end of the line
+
                     const int maxOffset = 180;
                     for (int offset = 0; offset <= maxOffset; offset += 15)
                     {
                         int alpha = 290 - (offset * 290 / maxOffset);
 
                         if (alpha > 255)
-                        {
                             alpha = 255;
-                        }
-                        if (alpha < 0)
-                        {
+                        else if (alpha < 0)
                             alpha = 0;
-                        }
-
                         Color col = Color.FromArgb(alpha, forePen.Color);
                         using (Pen gradPen = new Pen(col, forePen.Width))
                         {
                             float startAngle = angle + (offset - (ensureVisible ? 30 : 0)) * (backwards ? 1 : -1);
-                            float sweepAngle = 15 * (backwards ? 1 : -1);
+                            float sweepAngle = 15 * (backwards ? 1 : -1);	// draw in reverse direction
                             e.Graphics.DrawArc(gradPen, padding, padding, Width - 2 * padding - 1, Height - 2 * padding - 1, startAngle, sweepAngle);
                         }
                     }
@@ -231,5 +281,6 @@ namespace MetroFramework.Controls
         }
 
         #endregion
+
     }
 }
