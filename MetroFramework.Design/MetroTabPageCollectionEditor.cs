@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Most likely origins / copyright owner
+// (c) Mick Doherty
+// http://dotnetrix.co.uk/tabcontrol.htm
+// http://www.pcreview.co.uk/forums/adding-custom-tabpages-design-time-t2904262.html
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Text;

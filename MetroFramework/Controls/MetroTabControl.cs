@@ -27,6 +27,13 @@ Portions of this software are (c) 2011 Sven Walter, http://github.com/viperneo
  */
 #endregion
 
+// Most likely origins / copyright owner
+// (c) Mick Doherty
+// http://dotnetrix.co.uk/tabcontrol.htm
+// http://www.pcreview.co.uk/forums/adding-custom-tabpages-design-time-t2904262.html
+// http://www.codeproject.com/Articles/12185/A-NET-Flat-TabControl-CustomDraw
+// http://www.codeproject.com/Articles/278/Fully-owner-drawn-tab-control
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -139,12 +146,6 @@ namespace MetroFramework.Controls
                     Region r = new Region(ClientRectangle);
                     r.Exclude(DisplayRectangle);
                     e.Graphics.FillRegion(bgBrush, r);
-
-                    //// Fill ClientRectangle - DisplayRectangle
-                    //e.Graphics.FillRectangle(bgBrush, 0, 0, DisplayRectangle.Left, Height);
-                    //e.Graphics.FillRectangle(bgBrush, DisplayRectangle.Right, 0, Right-DisplayRectangle.Right, Height);
-                    //e.Graphics.FillRectangle(bgBrush, DisplayRectangle.Left, 0, DisplayRectangle.Width, DisplayRectangle.Top);
-                    //e.Graphics.FillRectangle(bgBrush, DisplayRectangle.Left, DisplayRectangle.Bottom, DisplayRectangle.Width, Bottom-DisplayRectangle.Bottom);
                 }
             }
             catch (Exception ex)
@@ -172,10 +173,6 @@ namespace MetroFramework.Controls
         {
             using (Brush bgBrush = new SolidBrush( GetThemeColor("BorderColor")))
             {
-                //graphics.FillRectangle(bgBrush, -2 + GetTabRect(0).X + DisplayRectangle.X, GetTabRect(index).Bottom + 2 - TabBottomBorderHeight,
-                //                       Width - (Width - DisplayRectangle.Width + DisplayRectangle.X) + 4,
-                //                       TabBottomBorderHeight);
-
                 Rectangle borderRectangle = new Rectangle(DisplayRectangle.X, GetTabRect(index).Bottom + 2 - TAB_BOTTOM_BORDER_HEIGHT, 
                     DisplayRectangle.Width, TAB_BOTTOM_BORDER_HEIGHT);
 
@@ -274,6 +271,7 @@ namespace MetroFramework.Controls
             Invalidate();
         }
 
+        // TODO: ???
         [SecuritySafeCritical]
         protected override void WndProc(ref Message m)
         {
@@ -335,6 +333,13 @@ namespace MetroFramework.Controls
             base.OnMouseWheel(e);
         }
 
+        #endregion
+
+        // The below is possibly (c) Oscar Londono
+        // http://www.codeproject.com/Articles/12185/A-NET-Flat-TabControl-CustomDraw
+
+        #region
+
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
@@ -361,10 +366,6 @@ namespace MetroFramework.Controls
             UpdateUpDown();
             //Invalidate();
         }
-
-        #endregion
-
-        #region Helper Methods
 
         [SecuritySafeCritical]
         private void FindUpDown()
